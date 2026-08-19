@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>المصحف الكريم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+/* ══════════════════════════════════════════════════
+   VARIABLES
+══════════════════════════════════════════════════ */
+:root {
+  --bg:#07070f;
+  --bg2:#0d0d1f;
+  --card:#0f1020;
+  --card2:#131325;
+  --border:#1e2040;
+  --text:#d4e0ff;
+  --text-dim:#5a6280;
+  --neon:#00ff99;
+  --neon2:#00ccff;
+  --gold:#ffd060;
+  --gold2:#ffaa00;
+  --green:#00b36b;
+  --green-dark:#007844;
+  --chip-bg:#0f1020;
+  --radius:14px;
+  --shadow:0 8px 32px rgba(0,255,153,.12);
+  --header-bg:rgba(7,7,15,.96);
+  --bar-bg:rgba(7,7,15,.97);
+  --bar-border:rgba(30,32,64,.7);
+  --overlay-bg:rgba(0,0,8,.82);
+  --modal-bg:#0a0a1a;
+  --surah-box:#0a1a14;
+  --neon-glow:drop-shadow(0 0 8px #00ff99) drop-shadow(0 0 16px #00ff99);
+  --gold-glow:drop-shadow(0 0 8px #ffd060) drop-shadow(0 0 16px #ffaa00);
+  --verse-color:#e8fff2;
+}
+[data-theme="light"] {
+  --bg:#f8f4ec;
+  --bg2:#ede7d8;
+  --card:#fff;
+  --card2:#f5f0e6;
+  --border:#ddd0b0;
+  --text:#1a1a10;
+  --text-dim:#7a7060;
+  --neon:#007a40;
+  --neon2:#005f80;
+  --gold:#c97a00;
+  --gold2:#a05000;
+  --green:#006030;
+  --green-dark:#004020;
+  --chip-bg:#fff;
+  --shadow:0 8px 32px rgba(0,100,50,.1);
+  --header-bg:rgba(248,244,236,.97);
+  --bar-bg:rgba(255,255,255,.97);
+  --bar-border:rgba(180,160,120,.4);
+  --overlay-bg:rgba(0,0,0,.55);
+  --modal-bg:#f8f4ec;
+  --surah-box:#e8f5ee;
+  --neon-glow:drop-shadow(0 0 4px #007a40);
+  --gold-glow:drop-shadow(0 0 4px #c97a00);
+  --verse-color:#0a1a0a;
+}
+
+/* ══════════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--text);
+  font-family:'Cairo',sans-serif;direction:rtl;overflow-x:hidden;
+  transition:background .4s,color .4s}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ══════════════════════════════════════════════════
+   ── SPLASH ──
+══════════════════════════════════════════════════ */
+#splash{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(175deg,#02010c 0%,#050318 35%,#0a0620 65%,#120830 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  overflow:hidden;
+}
+#splash.fade-out{animation:splashOut 1s ease-in forwards}
+@keyframes splashOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.03);pointer-events:none}}
+
+/* Stars */
+.star{position:absolute;border-radius:50%;background:#fff;
+  animation:twinkle var(--dur,2s) var(--delay,0s) ease-in-out infinite alternate}
+@keyframes twinkle{0%{opacity:.15;transform:scale(.7)}100%{opacity:1;transform:scale(1.3)}}
+
+/* Shooting stars */
+.shoot{
+  position:absolute;width:2px;height:2px;border-radius:50%;
+  background:#fff;opacity:0;
+  animation:shoot var(--sd,3s) var(--ss,0s) ease-in infinite;
+}
+@keyframes shoot{
+  0%{opacity:0;transform:translate(0,0) scale(1)}
+  5%{opacity:1}
+  15%{opacity:0;transform:translate(-120px,60px) scale(0)}
+  100%{opacity:0}
+}
+
+/* Moon */
+.splash-moon{position:absolute;top:7%;right:9%;width:72px;height:72px;
+  opacity:0;animation:moonRise 1.2s .3s cubic-bezier(.2,.8,.4,1) forwards}
+@keyframes moonRise{
+  0%{opacity:0;transform:translateY(20px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+.moon-halo{
+  position:absolute;top:4%;right:5%;width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,200,80,.08) 0%,transparent 70%);
+  opacity:0;animation:fadeIn 1s .6s ease forwards;
+}
+@keyframes fadeIn{to{opacity:1}}
+
+/* Bismillah */
+.splash-bismillah{
+  position:absolute;top:9%;left:50%;transform:translateX(-50%);
+  font-family:'Amiri Quran',serif;font-size:22px;color:var(--gold);
+  text-shadow:0 0 14px #ffd060,0 0 28px #ffaa00,0 0 50px rgba(255,170,0,.4);
+  white-space:nowrap;opacity:0;animation:textAppear 1s 1s ease forwards;
+  text-align:center;letter-spacing:.5px;
+}
+.splash-title{
+  position:absolute;top:calc(9% + 38px);left:50%;transform:translateX(-50%);
+  font-size:14px;font-weight:600;color:rgba(180,215,200,.8);
+  letter-spacing:3px;white-space:nowrap;text-transform:uppercase;
+  opacity:0;animation:textAppear 1s 1.5s ease forwards;
+}
+@keyframes textAppear{
+  0%{opacity:0;transform:translateX(-50%) translateY(8px)}
+  100%{opacity:1;transform:translateX(-50%) translateY(0)}
+}
+
+/* ── MOSQUE SCENE ── */
+.mosque-scene{
+  width:100%;max-width:480px;position:relative;
+  opacity:0;animation:sceneIn 1.2s 1s ease forwards;
+}
+@keyframes sceneIn{to{opacity:1}}
+
+/* ── SHEIKH – Realistic walking figure ── */
+.sheikh-wrap{
+  position:absolute;
+  bottom:74px;
+  right:-90px;
+  z-index:20;
+  animation:sheikhWalk 3.2s 1.8s cubic-bezier(.38,0,.55,1) forwards;
+  transform-origin:bottom center;
+}
+@keyframes sheikhWalk{
+  0%  {right:-90px;transform:scaleX(1) scale(1);opacity:1}
+  55% {right:39%;transform:scaleX(1) scale(1);opacity:1}
+  70% {right:39%;transform:scaleX(1) scale(.85);opacity:1}
+  88% {right:40%;transform:scaleX(1) scale(.55);opacity:.8}
+  100%{right:40%;transform:scaleX(1) scale(.15);opacity:0}
+}
+
+/* Sheikh shadow on ground */
+.sheikh-shadow{
+  position:absolute;bottom:-4px;left:50%;
+  transform:translateX(-50%);
+  width:36px;height:8px;border-radius:50%;
+  background:rgba(0,0,0,.5);
+  filter:blur(3px);
+  animation:shadowPulse 3.2s 1.8s cubic-bezier(.38,0,.55,1) forwards;
+}
+@keyframes shadowPulse{
+  0%  {width:36px;opacity:.5}
+  55% {width:36px;opacity:.5}
+  100%{width:8px;opacity:0}
+}
+
+/* Walking legs keyframe via SMIL is in SVG.
+   We add a CSS body-bob for realism */
+.sheikh-body{
+  animation:bodyBob .55s ease-in-out infinite alternate;
+}
+@keyframes bodyBob{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-2px)}
+}
+
+/* Door glow on arrival */
+.door-glow{
+  position:absolute;
+  bottom:74px;
+  right:0;left:0;
+  display:flex;justify-content:center;
+  opacity:0;
+  animation:doorFlare .8s 4.7s ease forwards;
+}
+@keyframes doorFlare{
+  0%{opacity:0;filter:blur(10px)}
+  50%{opacity:1;filter:blur(2px)}
+  100%{opacity:.85;filter:blur(0)}
+}
+
+/* Light particles from mosque door */
+.door-particle{
+  position:absolute;border-radius:50%;pointer-events:none;
+  animation:doorPart var(--dp,2s) var(--dps,5s) ease-out infinite;
+  opacity:0;
+}
+@keyframes doorPart{
+  0%{opacity:.9;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--dx,20px),var(--dy,-40px)) scale(0)}
+}
+
+/* Loading dots */
+.splash-dots{
+  position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;
+}
+.splash-dot{width:6px;height:6px;border-radius:50%;
+  background:var(--neon);opacity:.2;
+  animation:dotPulse 1.4s var(--dd,0s) ease-in-out infinite alternate}
+@keyframes dotPulse{to{opacity:1;transform:scale(1.5)}}
+
+/* ══════════════════════════════════════════════════
+   ── MAIN APP ──
+══════════════════════════════════════════════════ */
+#mainApp{max-width:480px;margin:0 auto;padding-bottom:130px;
+  opacity:0;transition:opacity .7s ease}
+#mainApp.visible{opacity:1}
+
+/* Background canvas */
+#particleCanvas{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35}
+
+/* ── HEADER ── */
+.header{
+  padding:16px 16px 12px;
+  background:var(--header-bg);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background .4s;
+}
+.header-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-left h1{
+  font-size:19px;font-weight:900;
+  color:#fff;
+  letter-spacing:-.3px;
+  text-shadow:0 0 20px rgba(0,255,153,.2);
+}
+[data-theme="light"] .header-left h1{color:#0a1a08;text-shadow:none}
+
+.live-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--neon);
+  box-shadow:0 0 8px var(--neon);
+  display:inline-block;margin-right:2px;
+  animation:livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse{
+  0%,100%{box-shadow:0 0 4px var(--neon);transform:scale(1)}
+  50%{box-shadow:0 0 12px var(--neon),0 0 20px rgba(0,255,153,.3);transform:scale(1.2)}
+}
+
+.header-sub{
+  font-size:11px;color:var(--neon);font-weight:700;
+  letter-spacing:.8px;margin-bottom:4px;text-transform:uppercase;
+  text-shadow:0 0 10px var(--neon);
+}
+.header-desc{font-size:11.5px;color:var(--text-dim);line-height:1.7;margin-bottom:12px}
+
+/* Theme toggle */
+.theme-btn{
+  background:transparent;border:1.5px solid var(--border);
+  border-radius:20px;padding:6px 12px;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--text-dim);
+  transition:all .2s;user-select:none;font-family:'Cairo',sans-serif;
+}
+.theme-btn:active{transform:scale(.94);border-color:var(--neon)}
+
+/* ── SEARCH ── */
+.search-wrap{
+  display:flex;border-radius:12px;overflow:hidden;
+  border:1.5px solid var(--border);margin-bottom:10px;
+  transition:border-color .2s,box-shadow .2s;background:var(--card);
+}
+.search-wrap:focus-within{
+  border-color:var(--neon);
+  box-shadow:0 0 0 3px rgba(0,255,153,.1);
+}
+.search-wrap input{
+  flex:1;background:transparent;border:none;outline:none;
+  padding:10px 14px;color:var(--text);
+  font-family:'Cairo',sans-serif;font-size:13px;direction:rtl;
+}
+.search-wrap input::placeholder{color:var(--text-dim)}
+.search-btn{
+  background:var(--green-dark);border:none;padding:0 16px;
+  cursor:pointer;display:flex;align-items:center;
+  transition:background .2s;
+}
+.search-btn:active{filter:brightness(1.3)}
+
+/* ── CHIPS ── */
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;background:var(--card);border:1.5px solid var(--border);
+  color:var(--text-dim);border-radius:20px;padding:5px 14px;
+  font-size:12px;font-family:'Cairo',sans-serif;cursor:pointer;
+  transition:all .2s;white-space:nowrap;font-weight:600;
+}
+.chip:active,.chip.active{
+  background:var(--green-dark);border-color:var(--neon);color:#fff;
+  box-shadow:0 0 10px rgba(0,255,153,.25);
+}
+
+/* ── NEON SEPARATOR ── */
+.neon-line{
+  height:1px;margin:0;
+  background:linear-gradient(90deg,transparent 0%,var(--neon) 30%,var(--gold) 50%,var(--neon) 70%,transparent 100%);
+  opacity:.2;
+}
+
+/* ── PAGE CARD ── */
+.page-card{
+  margin:12px 12px 0;background:var(--card);
+  border-radius:18px;overflow:hidden;
+  border:1px solid var(--border);
+  transition:border-color .3s,box-shadow .3s;
+  position:relative;z-index:1;
+}
+.page-card::before{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:18px;
+  background:radial-gradient(ellipse at 0% 0%,rgba(0,255,153,.04),transparent 55%);
+}
+.card-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 8px;
+}
+.font-ctrl{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card2);border:1.5px solid var(--border);
+  border-radius:10px;padding:6px 12px;cursor:pointer;
+  color:var(--text-dim);font-size:12px;user-select:none;
+  transition:all .15s;font-family:'Cairo',sans-serif;font-weight:600;
+}
+.font-ctrl:active{background:var(--border);transform:scale(.96)}
+.page-meta{text-align:left}
+.page-num{
+  font-size:14px;font-weight:900;color:var(--neon);
+  text-shadow:0 0 10px var(--neon);letter-spacing:-.3px;
+}
+.page-surah{font-size:11.5px;color:var(--text-dim);margin-top:2px;font-weight:500}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;margin:0 16px 12px;
+  border-radius:10px;overflow:hidden;
+  border:1.5px solid var(--border);
+  background:var(--card2);
+}
+.tab-btn{
+  flex:1;padding:9px 0;text-align:center;
+  font-size:13px;font-family:'Cairo',sans-serif;font-weight:700;
+  cursor:pointer;border:none;background:transparent;
+  color:var(--text-dim);transition:all .25s;
+  position:relative;
+}
+.tab-btn.active{
+  background:var(--green-dark);color:#fff;
+  box-shadow:inset 0 0 14px rgba(0,255,153,.15);
+}
+
+/* ── SURAH BOX ── */
+.surah-box{
+  margin:0 16px 12px;
+  border:1px solid var(--neon);
+  border-radius:12px;padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surah-box);
+  box-shadow:0 0 20px rgba(0,255,153,.08),inset 0 0 30px rgba(0,255,153,.03);
+  position:relative;overflow:hidden;
+}
+.surah-box::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--neon),var(--gold));
+}
+.surah-box-name{
+  font-size:22px;font-weight:700;color:var(--neon);
+  font-family:'Amiri Quran',serif;
+  text-shadow:0 0 12px rgba(0,255,153,.4);
+}
+.surah-box-info{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.surah-box-loc{font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px}
+.surah-box-num{font-size:12px;color:var(--gold);font-weight:700}
+
+/* ── VERSES ── */
+.verse-section{padding:4px 16px 14px}
+.verse-paragraph{
+  font-family:'Amiri Quran',serif;font-size:22px;
+  line-height:2.8;text-align:justify;
+  color:var(--verse-color);direction:rtl;
+}
+.ayah-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:27px;height:27px;border-radius:50%;
+  border:1.5px solid var(--gold);
+  color:var(--gold);font-size:10px;
+  font-family:'Cairo',sans-serif;vertical-align:middle;
+  margin:0 4px;flex-shrink:0;
+  box-shadow:0 0 8px rgba(255,208,96,.2);
+  text-shadow:0 0 6px var(--gold);
+  transition:all .2s;
+}
+.ayah-num.playing-ayah{
+  background:var(--gold);color:#000;
+  box-shadow:0 0 16px rgba(255,208,96,.6);
+  animation:ayahPulse 1s ease-in-out infinite alternate;
+}
+@keyframes ayahPulse{
+  0%{box-shadow:0 0 8px rgba(255,208,96,.4)}
+  100%{box-shadow:0 0 20px rgba(255,208,96,.8)}
+}
+.tafsir-text{font-family:'Cairo',sans-serif;font-size:14px;line-height:2;color:var(--text)}
+.tafsir-ayah{margin-bottom:14px;border-right:3px solid var(--neon);padding-right:12px;
+  transition:border-color .2s}
+.tafsir-num{font-size:11px;color:var(--neon);margin-bottom:5px;font-weight:700;letter-spacing:.3px}
+
+/* Basmala */
+.basmala{
+  text-align:center;font-family:'Amiri Quran',serif;font-size:25px;
+  color:var(--gold);padding:12px 16px;
+  text-shadow:0 0 12px rgba(255,208,96,.5);
+  letter-spacing:.5px;
+}
+
+/* ── SURAH LIST MODAL ── */
+.surah-all-chip{flex-shrink:0;background:linear-gradient(135deg,#00ff9920,#00ffd510);border-color:var(--neon)}
+.surah-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);max-width:480px;margin:0 auto}
+.surah-modal-content{width:100%;max-height:82vh;height:82vh;background:var(--card);border:1.5px solid var(--border);border-bottom-left-radius:24px;border-bottom-right-radius:24px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 30px rgba(0,0,0,.4)}
+.surah-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 8px}
+.surah-modal-title{font-family:'Cairo',sans-serif;font-size:18px;font-weight:800;color:var(--text)}
+.surah-modal-close{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:transparent;color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#surahSearchInput{margin:8px 16px 12px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;width:calc(100% - 32px);box-sizing:border-box}
+#surahSearchInput:focus{outline:none;border-color:var(--neon)}
+.surah-grid{flex:1;overflow-y:auto;padding:0 16px 22px;display:grid;grid-template-columns:repeat(2,1fr);gap:9px;scrollbar-width:thin}
+.surah-grid::-webkit-scrollbar{width:5px}
+.surah-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
+.surah-item{display:flex;align-items:center;gap:9px;padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--surah-box);cursor:pointer;transition:all .15s}
+.surah-item:active{border-color:var(--neon);transform:scale(.97)}
+.surah-item-num{font-size:11px;color:var(--gold);font-weight:800;min-width:24px;text-align:center}
+.surah-item-name{font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:700;color:var(--text);flex:1}
+.surah-item-meta{font-size:10px;color:var(--text-dim);white-space:nowrap}
+.surah-item.hidden{display:none}
+/* ── SEPARATOR ── */
+.surah-separator{
+  margin:16px 16px 10px;border:none;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent);
+}
+
+/* ── PAGE NAV ── */
+.page-nav{margin:10px 12px 0;display:flex;gap:8px}
+.nav-btn{
+  flex:1;padding:13px 0;text-align:center;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:12px;color:var(--text);
+  font-size:13px;font-family:'Cairo',sans-serif;font-weight:700;
+  cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.nav-btn:not(:disabled):active{
+  background:var(--card2);border-color:var(--neon);
+  box-shadow:0 0 12px rgba(0,255,153,.15);
+  transform:scale(.97);
+}
+.nav-btn:disabled{opacity:.2;cursor:default}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar{
+  position:fixed;bottom:0;right:0;left:0;max-width:480px;margin:0 auto;
+  background:var(--bar-bg);backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--bar-border);
+  display:flex;z-index:100;
+  transition:background .4s;
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.bar-btn{
+  flex:1;padding:13px 0 10px;text-align:center;
+  font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;
+  color:var(--text-dim);cursor:pointer;border:none;background:none;
+  transition:color .2s;display:flex;flex-direction:column;align-items:center;gap:3px;
+  position:relative;overflow:hidden;
+}
+.bar-btn::after{
+  content:'';position:absolute;bottom:0;left:30%;right:30%;height:2px;
+  background:var(--neon);border-radius:2px 2px 0 0;
+  transform:scaleX(0);transition:transform .3s ease;
+}
+.bar-btn.playing::after,.bar-btn.active-bar::after{transform:scaleX(1)}
+.bar-btn:active,.bar-btn.playing,.bar-btn.active-bar{color:var(--neon)}
+.bar-btn svg{transition:filter .25s,transform .2s}
+.bar-btn.playing svg,.bar-btn.active-bar svg{filter:var(--neon-glow)}
+.bar-btn:active svg{transform:scale(.88)}
+.bar-divider{width:1px;background:var(--bar-border);margin:10px 0}
+
+/* ── AUDIO VISUALIZER ── */
+.audio-waves{display:flex;align-items:flex-end;gap:2px;height:14px}
+.wave-bar{
+  width:3px;border-radius:2px;background:var(--neon);
+  animation:waveAnim 1s var(--wd,0s) ease-in-out infinite alternate;
+  box-shadow:0 0 4px var(--neon);
+}
+@keyframes waveAnim{0%{height:3px}100%{height:13px}}
+
+/* ── RECITER MODAL ── */
+#reciterModal{
+  position:fixed;inset:0;background:var(--overlay-bg);
+  z-index:500;display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+#reciterModal.show{opacity:1;pointer-events:all}
+.reciter-panel{
+  width:100%;max-width:480px;margin:0 auto;
+  background:var(--modal-bg);border-radius:22px 22px 0 0;
+  padding:20px 16px calc(env(safe-area-inset-bottom)+24px);
+  max-height:72vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.4,1);
+  border-top:2px solid var(--neon);
+  box-shadow:0 -12px 50px rgba(0,255,153,.12);
+}
+#reciterModal.show .reciter-panel{transform:translateY(0)}
+.reciter-title{
+  font-size:16px;font-weight:900;color:var(--neon);
+  margin-bottom:16px;text-align:center;
+  text-shadow:0 0 10px var(--neon);
+  letter-spacing:-.2px;
+}
+.reciter-list{display:flex;flex-direction:column;gap:8px}
+.reciter-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;background:var(--card);
+  border:1.5px solid var(--border);border-radius:12px;
+  cursor:pointer;transition:all .2s;
+}
+.reciter-item:active{transform:scale(.98)}
+.reciter-item.selected{
+  border-color:var(--neon);background:var(--surah-box);
+  box-shadow:0 0 14px rgba(0,255,153,.12);
+}
+.reciter-name{font-size:14px;font-weight:700;color:var(--text)}
+.reciter-en{font-size:11px;color:var(--text-dim);margin-top:2px;font-weight:400}
+.reciter-check{opacity:0;transition:opacity .2s;flex-shrink:0}
+.reciter-item.selected .reciter-check{opacity:1;filter:var(--neon-glow)}
+
+/* ── LOADER ── */
+#loader{
+  position:fixed;inset:0;background:rgba(7,7,15,.75);
+  display:flex;align-items:center;justify-content:center;
+  z-index:300;opacity:0;pointer-events:none;transition:opacity .2s;
+  backdrop-filter:blur(4px);
+}
+#loader.show{opacity:1;pointer-events:all}
+.spinner-ring{
+  width:50px;height:50px;
+  border:3px solid var(--border);
+  border-top-color:var(--neon);
+  border-right-color:var(--gold);
+  border-radius:50%;
+  animation:spin .75s linear infinite;
+  filter:drop-shadow(0 0 8px var(--neon));
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── OVERVIEW MODAL ── */
+#overview{
+  position:fixed;inset:0;background:var(--overlay-bg);
+  z-index:400;display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+#overview.show{opacity:1;pointer-events:all}
+.overview-panel{
+  width:100%;max-width:480px;margin:0 auto;
+  background:var(--modal-bg);border-radius:22px 22px 0 0;
+  padding:20px 16px 30px;max-height:65vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.4,1);
+  border-top:2px solid var(--gold);
+  box-shadow:0 -12px 50px rgba(255,208,96,.1);
+}
+#overview.show .overview-panel{transform:translateY(0)}
+.overview-title{
+  font-size:16px;font-weight:900;color:var(--gold);
+  margin-bottom:16px;text-align:center;
+  text-shadow:0 0 10px var(--gold);
+  letter-spacing:-.2px;
+}
+.overview-info{display:flex;flex-direction:column;gap:8px}
+.ov-row{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;padding:12px 14px;
+  background:var(--card);border-radius:10px;
+  border:1px solid var(--border);
+}
+.ov-label{color:var(--text-dim);font-weight:600}
+.ov-val{color:var(--text);font-weight:700}
+.ov-close{
+  display:block;margin:18px auto 0;background:var(--green-dark);
+  color:#fff;border:none;border-radius:12px;
+  padding:12px 50px;font-family:'Cairo',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  box-shadow:0 0 16px rgba(0,255,153,.2);
+  transition:all .15s;
+}
+.ov-close:active{transform:scale(.96)}
+
+/* ── FONT SIZES ── */
+.fs-sm .verse-paragraph{font-size:19px}
+.fs-md .verse-paragraph{font-size:22px}
+.fs-lg .verse-paragraph{font-size:26px}
+
+/* ── MSG BOX ── */
+.msg-box{padding:40px 16px;text-align:center;color:var(--text-dim);font-size:14px;line-height:2}
+
+/* Ripple effect */
+.ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(0,255,153,.25);
+  transform:scale(0);animation:rippleOut .5s ease-out forwards;
+  pointer-events:none;
+}
+@keyframes rippleOut{to{transform:scale(4);opacity:0}}
+
+/* Toast notification */
+.toast{
+  position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);
+  background:var(--card2);border:1.5px solid var(--neon);
+  color:var(--text);padding:10px 20px;border-radius:20px;
+  font-size:13px;font-weight:600;z-index:9000;
+  opacity:0;transition:all .3s cubic-bezier(.2,.8,.4,1);
+  box-shadow:0 8px 30px rgba(0,255,153,.2);
+  white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SPLASH
+══════════════════════════════════════════════ -->
+<div id="splash">
+  <div id="starsLayer"></div>
+  <div class="moon-halo"></div>
+
+  <!-- Moon -->
+  <div class="splash-moon">
+    <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="moonGlow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="moonGrad" cx="38%" cy="35%">
+          <stop offset="0%" stop-color="#fffae8"/>
+          <stop offset="60%" stop-color="#f8d860"/>
+          <stop offset="100%" stop-color="#e0a820"/>
+        </radialGradient>
+      </defs>
+      <circle cx="38" cy="34" r="28" fill="rgba(255,210,60,.08)"/>
+      <circle cx="38" cy="34" r="20" fill="rgba(255,210,60,.06)"/>
+      <path d="M38,14 A20,20 0 1,1 38,54 A14,14 0 1,0 38,14 Z" fill="url(#moonGrad)" filter="url(#moonGlow)"/>
+      <!-- Craters -->
+      <circle cx="30" cy="30" r="2.5" fill="rgba(180,130,20,.15)"/>
+      <circle cx="42" cy="42" r="1.8" fill="rgba(180,130,20,.12)"/>
+      <circle cx="44" cy="28" r="1.5" fill="rgba(180,130,20,.1)"/>
+    </svg>
+  </div>
+
+  <div class="splash-bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+  <div class="splash-title">المصحف الكريم</div>
+
+  <!-- Mosque Scene -->
+  <div class="mosque-scene" id="mosqueScene">
+
+    <!-- Door glow -->
+    <div class="door-glow" id="doorGlow">
+      <svg width="120" height="80" viewBox="0 0 120 80" fill="none">
+        <defs>
+          <radialGradient id="doorLG" cx="50%" cy="100%">
+            <stop offset="0%" stop-color="#ffd060" stop-opacity=".95"/>
+            <stop offset="35%" stop-color="#ff9900" stop-opacity=".6"/>
+            <stop offset="70%" stop-color="#ff6600" stop-opacity=".2"/>
+            <stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="60" cy="76" rx="80" ry="55" fill="url(#doorLG)"/>
+      </svg>
+    </div>
+
+    <!-- ── SHEIKH – Fully animated realistic figure ── -->
+    <div class="sheikh-wrap" id="sheikhFig">
+      <div class="sheikh-body">
+        <svg width="46" height="96" viewBox="0 0 46 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="sheikhShadowF">
+              <feGaussianBlur stdDeviation="2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="thobeGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f5f5f5"/>
+              <stop offset="50%" stop-color="#efefef"/>
+              <stop offset="100%" stop-color="#e0e0e0"/>
+            </linearGradient>
+            <linearGradient id="thobeShadow" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="rgba(0,0,0,.12)"/>
+              <stop offset="100%" stop-color="rgba(0,0,0,.0)"/>
+            </linearGradient>
+            <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#d4a07a"/>
+              <stop offset="100%" stop-color="#c49070"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Ground shadow -->
+          <ellipse cx="23" cy="94" rx="16" ry="3.5" fill="rgba(0,0,0,.35)" opacity=".7">
+            <animate attributeName="rx" values="16;14;16" dur=".55s" repeatCount="indefinite"/>
+          </ellipse>
+
+          <!-- ── LEGS – alternating walk cycle ── -->
+          <!-- Left leg (thobe fold) -->
+          <g id="legL">
+            <animateTransform attributeName="transform" type="rotate"
+              values="10,15,68;-12,15,68;10,15,68" dur=".55s" repeatCount="indefinite"
+              calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>
+            <path d="M13,68 Q12,80 10,93 Q14,94 16,93 Q18,80 17,68 Z" fill="#e0e0e0"/>
+            <!-- Shoe -->
+            <ellipse cx="12" cy="93" rx="6" ry="2.5" fill="#3a3a3a">
+              <animate attributeName="cx" values="12;10;12" dur=".55s" repeatCount="indefinite"/>
+            </ellipse>
+          </g>
+          <!-- Right leg -->
+          <g id="legR">
+            <animateTransform attributeName="transform" type="rotate"
+              values="-10,30,68;12,30,68;-10,30,68" dur=".55s" repeatCount="indefinite"
+              calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>
+            <path d="M26,68 Q27,80 29,93 Q33,94 35,93 Q33,80 30,68 Z" fill="#d8d8d8"/>
+            <!-- Shoe -->
+            <ellipse cx="31" cy="93" rx="6" ry="2.5" fill="#3a3a3a">
+              <animate attributeName="cx" values="31;33;31" dur=".55s" repeatCount="indefinite"/>
+            </ellipse>
+          </g>
+
+          <!-- ── THOBE / Body ── -->
+          <path d="M9,22 Q7,45 7,68 L36,68 Q36,45 34,22 Z" fill="url(#thobeGrad)"/>
+          <!-- Thobe shadow folds -->
+          <path d="M9,22 Q10,45 11,68" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="2"/>
+          <path d="M22,22 L22,68" fill="none" stroke="rgba(0,0,0,.05)" stroke-width="1.5"/>
+          <path d="M34,22 Q33,45 32,68" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="1.5"/>
+
+          <!-- ── LEFT ARM – swinging ── -->
+          <g>
+            <animateTransform attributeName="transform" type="rotate"
+              values="18,8,24;-18,8,24;18,8,24" dur=".55s" repeatCount="indefinite"
+              calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>
+            <path d="M8,24 Q5,36 4,46" stroke="#eeeeee" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <!-- Hand -->
+            <ellipse cx="4" cy="48" rx="4" ry="3" fill="url(#skinGrad)" transform="rotate(-10,4,48)"/>
+            <!-- Tasbeeh beads -->
+            <circle cx="2" cy="52" r="2.5" fill="#8B6914"/>
+            <circle cx="1" cy="57" r="2" fill="#9B7920"/>
+            <line x1="2" y1="52" x2="1" y2="58" stroke="#6a4a10" stroke-width="1.2" stroke-linecap="round"/>
+          </g>
+
+          <!-- ── RIGHT ARM – swinging opposite ── -->
+          <g>
+            <animateTransform attributeName="transform" type="rotate"
+              values="-18,36,24;18,36,24;-18,36,24" dur=".55s" repeatCount="indefinite"
+              calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>
+            <path d="M36,24 Q39,36 40,46" stroke="#eeeeee" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <!-- Hand -->
+            <ellipse cx="40" cy="48" rx="4" ry="3" fill="url(#skinGrad)" transform="rotate(10,40,48)"/>
+          </g>
+
+          <!-- ── NECK ── -->
+          <rect x="19" y="15" width="8" height="10" rx="3" fill="url(#skinGrad)"/>
+
+          <!-- ── HEAD ── -->
+          <circle cx="23" cy="12" r="12" fill="url(#skinGrad)" filter="url(#sheikhShadowF)"/>
+          <!-- Head highlight -->
+          <ellipse cx="19" cy="8" rx="4" ry="3" fill="rgba(255,255,255,.12)" transform="rotate(-10,19,8)"/>
+
+          <!-- ── KUFIYYA / Cap ── -->
+          <path d="M12,10 Q12,.5 23,.5 Q34,.5 34,10 Z" fill="#7a7a7a"/>
+          <rect x="11" y="9" width="24" height="5" rx="2.5" fill="#696969"/>
+          <!-- Cap pattern lines -->
+          <path d="M14,10 Q23,4 32,10" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+
+          <!-- ── BEARD ── -->
+          <path d="M13,18 Q13,27 23,29 Q33,27 33,18 Q30,22 23,23 Q16,22 13,18 Z" fill="#4a3a2a"/>
+          <!-- Beard highlight -->
+          <path d="M18,19 Q22,23 23,23" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5" stroke-linecap="round"/>
+
+          <!-- ── EYES ── -->
+          <circle cx="19" cy="11" r="1.8" fill="#1a0a04"/>
+          <circle cx="27" cy="11" r="1.8" fill="#1a0a04"/>
+          <!-- Eye whites -->
+          <circle cx="19.4" cy="10.6" r=".6" fill="#fff" opacity=".7"/>
+          <circle cx="27.4" cy="10.6" r=".6" fill="#fff" opacity=".7"/>
+
+          <!-- ── MOUSTACHE ── -->
+          <path d="M19,17 Q23,15.5 27,17" fill="none" stroke="#3a2a1a" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="sheikh-shadow"></div>
+    </div>
+
+    <!-- ════ MOSQUE SVG ════ -->
+    <svg viewBox="0 0 480 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#02010c"/>
+          <stop offset="60%" stop-color="#080520"/>
+          <stop offset="100%" stop-color="#120830"/>
+        </linearGradient>
+        <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#16110a"/>
+          <stop offset="100%" stop-color="#0c0908"/>
+        </linearGradient>
+        <linearGradient id="stoneGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#c8ae88"/>
+          <stop offset="45%" stop-color="#bca070"/>
+          <stop offset="100%" stop-color="#a07a50"/>
+        </linearGradient>
+        <linearGradient id="stoneGrad2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#c0a07a"/>
+          <stop offset="100%" stop-color="#987048"/>
+        </linearGradient>
+        <radialGradient id="domeGrad" cx="40%" cy="25%">
+          <stop offset="0%" stop-color="#d4bc88"/>
+          <stop offset="55%" stop-color="#b89860"/>
+          <stop offset="100%" stop-color="#907040"/>
+        </radialGradient>
+        <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="brickShadow">
+          <feDropShadow dx="0" dy="2" stdDeviation="1" flood-opacity=".2"/>
+        </filter>
+        <radialGradient id="entLight" cx="50%" cy="100%">
+          <stop offset="0%" stop-color="#ffd060" stop-opacity=".75"/>
+          <stop offset="40%" stop-color="#ff9900" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="innerLight" cx="50%" cy="100%">
+          <stop offset="0%" stop-color="#ffd060" stop-opacity=".55"/>
+          <stop offset="55%" stop-color="#ff9900" stop-opacity=".2"/>
+          <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="winGrad">
+          <stop offset="0%" stop-color="#6699ff" stop-opacity=".9"/>
+          <stop offset="100%" stop-color="#2244cc" stop-opacity=".3"/>
+        </radialGradient>
+        <pattern id="tilePattern" width="20" height="20" patternUnits="userSpaceOnUse">
+          <rect width="20" height="20" fill="#14100a"/>
+          <rect x=".5" y=".5" width="9" height="9" fill="#1a1408" rx="1"/>
+          <rect x="10.5" y=".5" width="9" height="9" fill="#1a1408" rx="1"/>
+          <rect x=".5" y="10.5" width="9" height="9" fill="#1a1408" rx="1"/>
+          <rect x="10.5" y="10.5" width="9" height="9" fill="#1a1408" rx="1"/>
+        </pattern>
+        <!-- Animated door shimmer -->
+        <animate id="doorAnim"/>
+      </defs>
+
+      <!-- Sky -->
+      <rect width="480" height="320" fill="url(#skyGrad)"/>
+
+      <!-- Atmospheric haze -->
+      <ellipse cx="240" cy="230" rx="220" ry="45" fill="rgba(8,5,25,.5)"/>
+      <ellipse cx="240" cy="280" rx="180" ry="30" fill="rgba(15,8,5,.4)"/>
+
+      <!-- ── BACKGROUND MOSQUE SILHOUETTES ── -->
+      <g opacity=".1">
+        <rect x="5" y="185" width="42" height="45" fill="#c4a882"/>
+        <path d="M5,185 Q26,155 47,185 Z" fill="#c4a882"/>
+        <rect x="22" y="165" width="10" height="65" fill="#b08060"/>
+        <line x1="27" y1="155" x2="27" y2="162" stroke="#c0a060" stroke-width="1.5"/>
+        <rect x="430" y="180" width="45" height="50" fill="#c4a882"/>
+        <path d="M430,180 Q452,152 475,180 Z" fill="#d4b882"/>
+        <rect x="446" y="160" width="12" height="70" fill="#c09060"/>
+      </g>
+
+      <!-- ── LEFT MINARET ── -->
+      <!-- Base -->
+      <rect x="66" y="105" width="36" height="125" fill="url(#stoneGrad)" filter="url(#brickShadow)"/>
+      <!-- Brick courses -->
+      <g stroke="rgba(0,0,0,.12)" stroke-width="1">
+        <line x1="66" y1="122" x2="102" y2="122"/>
+        <line x1="66" y1="139" x2="102" y2="139"/>
+        <line x1="66" y1="156" x2="102" y2="156"/>
+        <line x1="66" y1="173" x2="102" y2="173"/>
+        <line x1="66" y1="190" x2="102" y2="190"/>
+        <line x1="66" y1="207" x2="102" y2="207"/>
+        <!-- Vertical joints -->
+        <line x1="75" y1="105" x2="75" y2="230" stroke-width=".7"/>
+        <line x1="84" y1="105" x2="84" y2="230" stroke-width=".7"/>
+        <line x1="93" y1="105" x2="93" y2="230" stroke-width=".7"/>
+      </g>
+      <!-- Balcony -->
+      <rect x="60" y="112" width="48" height="11" fill="#b89060" rx="2"/>
+      <path d="M60,112 Q84,108 108,112" fill="none" stroke="#a07848" stroke-width="1.5"/>
+      <!-- Upper section -->
+      <rect x="72" y="80" width="24" height="34" fill="#caa882" rx="1"/>
+      <!-- Band -->
+      <rect x="70" y="78" width="28" height="7" fill="#a07848" rx="2"/>
+      <!-- Decorative arch on minaret -->
+      <path d="M74,90 Q84,82 94,90 L94,114 L74,114 Z" fill="rgba(0,0,0,.1)"/>
+      <!-- Mini dome -->
+      <path d="M72,80 Q84,58 96,80 Z" fill="#d4ba88"/>
+      <ellipse cx="84" cy="80" rx="12" ry="4" fill="#c8a870"/>
+      <!-- Crescent & star -->
+      <g transform="translate(80,46)" filter="url(#neonGlow)">
+        <path d="M4,0 A8,8 0 1,1 4,16 A5,5 0 1,0 4,0 Z" fill="#ffd060" opacity=".95"/>
+        <polygon points="12,2 13.8,7.5 19.5,7.5 15,11 16.7,16.5 12,13 7.3,16.5 9,11 4.5,7.5 10.2,7.5" fill="#ffd060" transform="scale(.52) translate(4,-2)" opacity=".9"/>
+        <!-- Animated shimmer on crescent -->
+        <path d="M4,0 A8,8 0 1,1 4,16 A5,5 0 1,0 4,0 Z" fill="none" stroke="#fff8c0" stroke-width=".5" opacity=".6">
+          <animate attributeName="opacity" values=".2;.8;.2" dur="3s" repeatCount="indefinite"/>
+        </path>
+      </g>
+
+      <!-- ── RIGHT MINARET ── -->
+      <rect x="378" y="105" width="36" height="125" fill="url(#stoneGrad)" filter="url(#brickShadow)"/>
+      <g stroke="rgba(0,0,0,.12)" stroke-width="1">
+        <line x1="378" y1="122" x2="414" y2="122"/>
+        <line x1="378" y1="139" x2="414" y2="139"/>
+        <line x1="378" y1="156" x2="414" y2="156"/>
+        <line x1="378" y1="173" x2="414" y2="173"/>
+        <line x1="378" y1="190" x2="414" y2="190"/>
+        <line x1="378" y1="207" x2="414" y2="207"/>
+        <line x1="387" y1="105" x2="387" y2="230" stroke-width=".7"/>
+        <line x1="396" y1="105" x2="396" y2="230" stroke-width=".7"/>
+        <line x1="405" y1="105" x2="405" y2="230" stroke-width=".7"/>
+      </g>
+      <rect x="372" y="112" width="48" height="11" fill="#b89060" rx="2"/>
+      <path d="M372,112 Q396,108 420,112" fill="none" stroke="#a07848" stroke-width="1.5"/>
+      <rect x="384" y="80" width="24" height="34" fill="#caa882" rx="1"/>
+      <rect x="382" y="78" width="28" height="7" fill="#a07848" rx="2"/>
+      <path d="M386,90 Q396,82 406,90 L406,114 L386,114 Z" fill="rgba(0,0,0,.1)"/>
+      <path d="M384,80 Q396,58 408,80 Z" fill="#d4ba88"/>
+      <ellipse cx="396" cy="80" rx="12" ry="4" fill="#c8a870"/>
+      <g transform="translate(392,46)" filter="url(#neonGlow)">
+        <path d="M4,0 A8,8 0 1,1 4,16 A5,5 0 1,0 4,0 Z" fill="#ffd060" opacity=".95"/>
+        <polygon points="12,2 13.8,7.5 19.5,7.5 15,11 16.7,16.5 12,13 7.3,16.5 9,11 4.5,7.5 10.2,7.5" fill="#ffd060" transform="scale(.52) translate(4,-2)" opacity=".9"/>
+        <path d="M4,0 A8,8 0 1,1 4,16 A5,5 0 1,0 4,0 Z" fill="none" stroke="#fff8c0" stroke-width=".5" opacity=".6">
+          <animate attributeName="opacity" values=".8;.2;.8" dur="3s" repeatCount="indefinite"/>
+        </path>
+      </g>
+
+      <!-- ── MAIN BUILDING ── -->
+      <rect x="80" y="142" width="320" height="88" fill="url(#stoneGrad2)" filter="url(#brickShadow)"/>
+      <!-- Horizontal courses -->
+      <g stroke="rgba(0,0,0,.1)" stroke-width=".8">
+        <line x1="80" y1="157" x2="400" y2="157"/>
+        <line x1="80" y1="172" x2="400" y2="172"/>
+        <line x1="80" y1="187" x2="400" y2="187"/>
+        <line x1="80" y1="202" x2="400" y2="202"/>
+        <line x1="80" y1="217" x2="400" y2="217"/>
+      </g>
+      <!-- Vertical joints -->
+      <g stroke="rgba(0,0,0,.07)" stroke-width=".7">
+        <line x1="110" y1="142" x2="110" y2="230"/>
+        <line x1="140" y1="142" x2="140" y2="230"/>
+        <line x1="170" y1="142" x2="170" y2="230"/>
+        <line x1="200" y1="142" x2="200" y2="230"/>
+        <line x1="240" y1="142" x2="240" y2="230"/>
+        <line x1="280" y1="142" x2="280" y2="230"/>
+        <line x1="310" y1="142" x2="310" y2="230"/>
+        <line x1="340" y1="142" x2="340" y2="230"/>
+        <line x1="370" y1="142" x2="370" y2="230"/>
+      </g>
+      <!-- Wall top decorative band -->
+      <rect x="80" y="142" width="320" height="5" fill="rgba(255,255,255,.06)"/>
+
+      <!-- ── MAIN DOME ── -->
+      <ellipse cx="240" cy="142" rx="82" ry="12" fill="rgba(0,0,0,.35)"/>
+      <path d="M158,142 Q158,58 240,56 Q322,58 322,142 Z" fill="url(#domeGrad)"/>
+      <!-- Dome highlight -->
+      <path d="M178,138 Q183,72 240,64 Q232,70 224,90 Q210,118 200,138 Z" fill="rgba(255,255,255,.14)"/>
+      <!-- Dome horizontal bands (decorative) -->
+      <path d="M168,120 Q198,110 240,108 Q282,110 312,120" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+      <path d="M163,132 Q196,124 240,122 Q284,124 317,132" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+      <!-- Dome neon outline -->
+      <path d="M158,142 Q158,58 240,56 Q322,58 322,142" fill="none" stroke="#00ff99" stroke-width="1.5" opacity=".5" filter="url(#neonGlow)">
+        <animate attributeName="opacity" values=".3;.6;.3" dur="4s" repeatCount="indefinite"/>
+      </path>
+      <!-- Dome base ring -->
+      <rect x="176" y="133" width="128" height="18" fill="#b89060" rx="2"/>
+      <path d="M176,133 L176,151 L304,151 L304,133" fill="none" stroke="#ffd060" stroke-width=".8" opacity=".35" filter="url(#neonGlow)"/>
+
+      <!-- Dome crescent & star (main) -->
+      <g transform="translate(228,26)" filter="url(#softGlow)">
+        <line x1="12" y1="2" x2="12" y2="34" stroke="#ffd060" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M5,4 A11,11 0 1,1 5,26 A7,7 0 1,0 5,4 Z" fill="#ffd060"/>
+        <path d="M5,4 A11,11 0 1,1 5,26 A7,7 0 1,0 5,4 Z" fill="none" stroke="#fff8c0" stroke-width=".7" opacity=".7">
+          <animate attributeName="opacity" values=".3;.9;.3" dur="2.5s" repeatCount="indefinite"/>
+        </path>
+        <polygon points="22,0 24,6.5 30.5,6.5 25.5,10.5 27.5,17 22,13 16.5,17 18.5,10.5 13.5,6.5 20,6.5" fill="#ffd060" transform="scale(.75) translate(3,0)"/>
+      </g>
+
+      <!-- ── SIDE DOMES ── -->
+      <!-- Left -->
+      <path d="M96,142 Q96,108 128,107 Q160,108 160,142 Z" fill="#c4a872"/>
+      <path d="M96,142 Q96,108 128,107 Q160,108 160,142" fill="none" stroke="#ffd060" stroke-width="1" opacity=".4" filter="url(#neonGlow)"/>
+      <ellipse cx="128" cy="142" rx="32" ry="5" fill="rgba(0,0,0,.25)"/>
+      <rect x="110" y="136" width="36" height="9" fill="#a07848" rx="1.5"/>
+      <g transform="translate(122,90)" filter="url(#neonGlow)">
+        <path d="M3,0 A7,7 0 1,1 3,14 A4.5,4.5 0 1,0 3,0 Z" fill="#ffd060" opacity=".9"/>
+      </g>
+      <!-- Right -->
+      <path d="M320,142 Q320,108 352,107 Q384,108 384,142 Z" fill="#c4a872"/>
+      <path d="M320,142 Q320,108 352,107 Q384,108 384,142" fill="none" stroke="#ffd060" stroke-width="1" opacity=".4" filter="url(#neonGlow)"/>
+      <ellipse cx="352" cy="142" rx="32" ry="5" fill="rgba(0,0,0,.25)"/>
+      <rect x="334" y="136" width="36" height="9" fill="#a07848" rx="1.5"/>
+      <g transform="translate(346,90)" filter="url(#neonGlow)">
+        <path d="M3,0 A7,7 0 1,1 3,14 A4.5,4.5 0 1,0 3,0 Z" fill="#ffd060" opacity=".9"/>
+      </g>
+
+      <!-- ── ARCHED WINDOWS (upper) ── -->
+      <!-- Left window -->
+      <path d="M106,152 L106,178 Q106,192 118,192 Q130,192 130,178 L130,152 Z" fill="#080618"/>
+      <path d="M106,178 Q106,192 118,192 Q130,192 130,178" fill="url(#winGrad)"/>
+      <path d="M106,178 Q106,192 118,192 Q130,192 130,178 L130,152 Q118,138 106,152 Z" fill="none" stroke="#6699ff" stroke-width=".8" opacity=".5" filter="url(#neonGlow)"/>
+      <!-- Window cross frame -->
+      <line x1="118" y1="152" x2="118" y2="192" stroke="#3355aa" stroke-width=".7" opacity=".5"/>
+      <line x1="106" y1="172" x2="130" y2="172" stroke="#3355aa" stroke-width=".7" opacity=".5"/>
+      <!-- Right window -->
+      <path d="M350,152 L350,178 Q350,192 362,192 Q374,192 374,178 L374,152 Z" fill="#080618"/>
+      <path d="M350,178 Q350,192 362,192 Q374,192 374,178" fill="url(#winGrad)"/>
+      <path d="M350,178 Q350,192 362,192 Q374,192 374,178 L374,152 Q362,138 350,152 Z" fill="none" stroke="#6699ff" stroke-width=".8" opacity=".5" filter="url(#neonGlow)"/>
+      <line x1="362" y1="152" x2="362" y2="192" stroke="#3355aa" stroke-width=".7" opacity=".5"/>
+      <line x1="350" y1="172" x2="374" y2="172" stroke="#3355aa" stroke-width=".7" opacity=".5"/>
+      <!-- Window glow animation -->
+      <path d="M106,178 Q106,192 118,192 Q130,192 130,178" fill="rgba(100,140,255,.08)">
+        <animate attributeName="opacity" values=".5;1;.5" dur="3.5s" repeatCount="indefinite"/>
+      </path>
+      <path d="M350,178 Q350,192 362,192 Q374,192 374,178" fill="rgba(100,140,255,.08)">
+        <animate attributeName="opacity" values="1;.5;1" dur="3.5s" repeatCount="indefinite"/>
+      </path>
+
+      <!-- ── MAIN ENTRANCE ARCH ── -->
+      <!-- Ambient light -->
+      <ellipse cx="240" cy="232" rx="65" ry="38" fill="url(#entLight)"/>
+      <!-- Arch opening -->
+      <path d="M196,232 L196,204 Q196,172 240,172 Q284,172 284,204 L284,232 Z" fill="#050314"/>
+      <!-- Inner golden light -->
+      <path d="M196,232 L196,208 Q196,175 240,175 Q284,175 284,208 L284,232 Z" fill="url(#innerLight)">
+        <animate attributeName="opacity" values=".7;1;.7" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <!-- Golden frame -->
+      <path d="M196,232 L196,204 Q196,172 240,172 Q284,172 284,204 L284,232" fill="none" stroke="#c8a860" stroke-width="3.5"/>
+      <!-- Neon glow on arch -->
+      <path d="M196,232 L196,204 Q196,172 240,172 Q284,172 284,204 L284,232" fill="none" stroke="#ffd060" stroke-width="1.5" opacity=".65" filter="url(#softGlow)"/>
+      <!-- Keystone -->
+      <path d="M228,172 L240,158 L252,172" fill="#c8a060"/>
+      <path d="M228,172 L240,158 L252,172" fill="none" stroke="#ffd060" stroke-width="1" opacity=".7" filter="url(#neonGlow)"/>
+      <circle cx="240" cy="172" r="5" fill="#ffd060" filter="url(#neonGlow)"/>
+      <!-- Arch decorative details -->
+      <path d="M220,172 Q230,162 240,158 Q250,162 260,172" fill="none" stroke="#c0a060" stroke-width="1.5" opacity=".6"/>
+
+      <!-- ── SIDE ARCHES ── -->
+      <!-- Left -->
+      <path d="M138,232 L138,210 Q138,188 160,188 Q182,188 182,210 L182,232 Z" fill="#06041a"/>
+      <path d="M138,232 L138,210 Q138,188 160,188 Q182,188 182,210 L182,232" fill="none" stroke="#c4a860" stroke-width="2.5"/>
+      <path d="M138,232 L138,210 Q138,188 160,188 Q182,188 182,210 L182,232" fill="none" stroke="#ffd060" stroke-width="1" opacity=".45" filter="url(#neonGlow)"/>
+      <!-- Right -->
+      <path d="M298,232 L298,210 Q298,188 320,188 Q342,188 342,210 L342,232 Z" fill="#06041a"/>
+      <path d="M298,232 L298,210 Q298,188 320,188 Q342,188 342,210 L342,232" fill="none" stroke="#c4a860" stroke-width="2.5"/>
+      <path d="M298,232 L298,210 Q298,188 320,188 Q342,188 342,210 L342,232" fill="none" stroke="#ffd060" stroke-width="1" opacity=".45" filter="url(#neonGlow)"/>
+
+      <!-- ── FORECOURT / GROUND ── -->
+      <rect x="0" y="230" width="480" height="90" fill="url(#tilePattern)"/>
+      <!-- Ground edge neon line -->
+      <line x1="0" y1="230" x2="480" y2="230" stroke="#00ff99" stroke-width="1.5" opacity=".18" filter="url(#neonGlow)"/>
+      <rect x="0" y="230" width="480" height="5" fill="rgba(0,255,153,.05)"/>
+      <!-- Ground grid -->
+      <g stroke="rgba(255,200,80,.06)" stroke-width=".8">
+        <line x1="0" y1="248" x2="480" y2="248"/>
+        <line x1="0" y1="266" x2="480" y2="266"/>
+        <line x1="0" y1="284" x2="480" y2="284"/>
+        <line x1="0" y1="302" x2="480" y2="302"/>
+        <line x1="48" y1="230" x2="48" y2="320"/>
+        <line x1="96" y1="230" x2="96" y2="320"/>
+        <line x1="144" y1="230" x2="144" y2="320"/>
+        <line x1="192" y1="230" x2="192" y2="320"/>
+        <line x1="240" y1="230" x2="240" y2="320"/>
+        <line x1="288" y1="230" x2="288" y2="320"/>
+        <line x1="336" y1="230" x2="336" y2="320"/>
+        <line x1="384" y1="230" x2="384" y2="320"/>
+        <line x1="432" y1="230" x2="432" y2="320"/>
+      </g>
+      <!-- Ground reflection of mosque -->
+      <path d="M178,232 Q178,234 240,240 Q302,234 302,232 Z" fill="rgba(255,208,96,.04)"/>
+
+      <!-- Ambient rays from entrance -->
+      <g opacity=".06">
+        <line x1="240" y1="232" x2="90" y2="320" stroke="#ffd060" stroke-width="15"/>
+        <line x1="240" y1="232" x2="390" y2="320" stroke="#ffd060" stroke-width="15"/>
+        <line x1="240" y1="232" x2="240" y2="320" stroke="#ffd060" stroke-width="20"/>
+        <line x1="240" y1="232" x2="150" y2="320" stroke="#ffd060" stroke-width="8"/>
+        <line x1="240" y1="232" x2="330" y2="320" stroke="#ffd060" stroke-width="8"/>
+      </g>
+
+      <!-- Building neon edge -->
+      <rect x="80" y="142" width="320" height="88" fill="none" stroke="#00ff99" stroke-width=".8" opacity=".1" filter="url(#neonGlow)"/>
+    </svg>
+  </div>
+
+  <div class="splash-dots">
+    <div class="splash-dot" style="--dd:0s"></div>
+    <div class="splash-dot" style="--dd:.25s"></div>
+    <div class="splash-dot" style="--dd:.5s"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════════ -->
+<canvas id="particleCanvas"></canvas>
+
+<div id="mainApp" class="fs-md">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-row1">
+      <div class="header-left">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <defs>
+            <radialGradient id="hMG" cx="38%" cy="33%">
+              <stop offset="0%" stop-color="#fffae0"/>
+              <stop offset="100%" stop-color="#f0c040"/>
+            </radialGradient>
+          </defs>
+          <circle cx="14" cy="14" r="13" fill="rgba(255,210,60,.07)"/>
+          <path d="M14,4 A10,10 0 1,1 14,24 A7,7 0 1,0 14,4 Z" fill="url(#hMG)"/>
+        </svg>
+        <h1>المصحف الكريم</h1>
+        <span class="live-dot"></span>
+      </div>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
+        <svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+          <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span id="themeLabel">فاتح</span>
+      </button>
+    </div>
+    <div class="header-sub">✦ تصفّح صفحات المصحف الكريم</div>
+    <div class="header-desc">اكتب رقم صفحة (١–٦٠٤) أو اسم السورة للقراءة مع الاستماع والتفسير</div>
+
+    <div class="search-wrap">
+      <input id="searchInput" type="text" placeholder="مثال: ٢٥٥ أو سورة يس …" inputmode="search"/>
+      <button class="search-btn" onclick="doSearch()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="2.2"/>
+          <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="chips" id="chipsRow">
+      <button class="chip" onclick="goSurah('الفاتحة')">الفاتحة</button>
+      <button class="chip" onclick="goSurah('البقرة')">البقرة</button>
+      <button class="chip" onclick="goSurah('يس')">يس</button>
+      <button class="chip" onclick="goSurah('الكهف')">الكهف</button>
+      <button class="chip" onclick="goSurah('الرحمن')">الرحمن</button>
+      <button class="chip" onclick="goSurah('الملك')">الملك</button>
+      <button class="chip" onclick="goSurah('مريم')">مريم</button>
+      <button class="chip" onclick="goSurah('الواقعة')">الواقعة</button>
+      <button class="chip surah-all-chip" onclick="openSurahList()">📖 جميع السور</button>
+    </div>
+  </div>
+
+    <div class="neon-line"></div>
+  <!-- Surah List Modal -->
+  <div class="surah-modal" id="surahModal" style="display:none">
+    <div class="surah-modal-content">
+      <div class="surah-modal-header">
+        <div class="surah-modal-title">📖 اختر السورة</div>
+        <button class="surah-modal-close" onclick="closeSurahList()" aria-label="إغلاق">✕</button>
+      </div>
+      <input id="surahSearchInput" type="text" placeholder="ابحث باسم السورة أو رقمها…" oninput="filterSurahList()"/>
+      <div class="surah-grid" id="surahGrid"></div>
+    </div>
+  </div>
+  <!-- Page Card -->
+  <div class="page-card" id="pageCard">
+    <div class="card-top">
+      <div class="font-ctrl" id="fontBtn" onclick="cycleFont()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M4 20L8 8L12 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 16H10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M15 12V20M18 12L15 8L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        الخط
+      </div>
+      <div class="page-meta">
+        <div class="page-num" id="pageNumLabel">صفحة ١</div>
+        <div class="page-surah" id="pageSurahLabel">سورة الفاتحة</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn" id="tabTafsir" onclick="switchTab('tafsir')">التفسير</button>
+      <button class="tab-btn active" id="tabQuran" onclick="switchTab('quran')">القرآن الكريم</button>
+    </div>
+
+    <div id="verseContainer"></div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="page-nav">
+    <button class="nav-btn" id="btnNext" onclick="changePage(1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      الصفحة التالية
+    </button>
+    <button class="nav-btn" id="btnPrev" onclick="changePage(-1)">
+      الصفحة السابقة
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <button class="bar-btn" id="audioBtn" onclick="toggleAudio()">
+    <svg id="audioBtnIcon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2"/>
+      <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span id="audioBtnLabel">استماع</span>
+  </button>
+  <div class="bar-divider"></div>
+  <button class="bar-btn" id="reciterBtn" onclick="showReciterModal()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+      <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="19" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M21 5.5 L22 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M22 7 L23.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span id="reciterBtnLabel">العفاسي</span>
+  </button>
+  <div class="bar-divider"></div>
+  <button class="bar-btn" onclick="showOverview()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/>
+      <path d="M7 8H17M7 12H17M7 16H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>نبذة</span>
+  </button>
+</div>
+
+<!-- Loader -->
+<div id="loader"><div class="spinner-ring"></div></div>
+
+<!-- Reciter Modal -->
+<div id="reciterModal" onclick="hideReciterModal()">
+  <div class="reciter-panel" onclick="event.stopPropagation()">
+    <div class="reciter-title">⟡ اختر القارئ</div>
+    <div class="reciter-list" id="reciterList"></div>
+  </div>
+</div>
+
+<!-- Overview Modal -->
+<div id="overview" onclick="hideOverview()">
+  <div class="overview-panel" onclick="event.stopPropagation()">
+    <div class="overview-title">⟡ نبذة عن الصفحة</div>
+    <div class="overview-info" id="overviewInfo"></div>
+    <button class="ov-close" onclick="hideOverview()">إغلاق</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+// ─── SPLASH ───────────────────────────────────
+(function initSplash() {
+  const layer = document.getElementById('starsLayer');
+
+  // Regular stars
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.8 + .5;
+    s.style.cssText = `
+      width:${size}px;height:${size}px;
+      top:${Math.random() * 78}%;
+      left:${Math.random() * 100}%;
+      --dur:${1.4 + Math.random() * 2.8}s;
+      --delay:${Math.random() * 4}s;
+      opacity:${.3 + Math.random() * .7};
+    `;
+    layer.appendChild(s);
+  }
+
+  // Shooting stars
+  for (let i = 0; i < 4; i++) {
+    const sh = document.createElement('div');
+    sh.className = 'shoot';
+    sh.style.cssText = `
+      top:${5 + Math.random() * 40}%;
+      left:${20 + Math.random() * 60}%;
+      --sd:${4 + Math.random() * 4}s;
+      --ss:${i * 2.5 + Math.random() * 2}s;
+    `;
+    layer.appendChild(sh);
+  }
+
+  const skipSplash = location.search.includes('skip') || location.hash === '#app';
+  const delay = skipSplash ? 80 : 6200;
+
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    const app = document.getElementById('mainApp');
+    if (skipSplash) { splash.style.display = 'none'; }
+    else { splash.classList.add('fade-out'); }
+    app.classList.add('visible');
+    setTimeout(() => { splash.style.display = 'none'; }, 1000);
+  }, delay);
+})();
+
+// ─── PARTICLES ────────────────────────────────
+(function initParticles() {
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Quran-themed particles: neon green & gold
+  for (let i = 0; i < 40; i++) {
+    const isGold = Math.random() > .55;
+    particles.push({
+      x: Math.random() * 1200, y: Math.random() * 1200,
+      r: Math.random() * 1.6 + .2,
+      dx: (Math.random() - .5) * .25, dy: (Math.random() - .5) * .25,
+      alpha: Math.random() * .45 + .08,
+      color: isGold ? '#ffd060' : '#00ff99',
+    });
+  }
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (document.documentElement.getAttribute('data-theme') === 'light') { requestAnimationFrame(draw); return; }
+    frame++;
+    particles.forEach((p, i) => {
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      // Slow alpha pulse
+      const pulse = Math.sin(frame * .02 + i * .4) * .12;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, p.alpha + pulse);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─── THEME ────────────────────────────────────
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  const root = document.documentElement;
+  const lbl  = document.getElementById('themeLabel');
+  const icon = document.getElementById('themeIcon');
+  const moon = document.getElementById('headerMoonIcon');
+  if (isDark) {
+    root.removeAttribute('data-theme');
+    lbl.textContent = 'فاتح';
+    icon.innerHTML = `<circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`;
+  } else {
+    root.setAttribute('data-theme', 'light');
+    lbl.textContent = 'غامق';
+    icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
+}
+
+// ─── RECITERS ─────────────────────────────────
+const RECITERS = [
+  { id:'ar.ahmadnainai',       ar:'أحمد نعينع',              en:'Ahmad Nainai',       full:'https://server11.mp3quran.net/ahmad_nu' },
+  { id:'ar.abdurrahmaansudais',ar:'عبد الرحمن السديس',        en:'Abdurrahmaan As-Sudais' },
+  { id:'ar.mahermuaiqly',      ar:'ماهر المعيقلي',            en:'Maher Al Muaiqly' },
+  { id:'ar.saoodshuraym',      ar:'سعود الشريم',              en:'Saood Ash-Shuraym' },
+  { id:'ar.abdulbasitmurattal',ar:'عبد الباسط عبد الصمد',    en:'Abdul Basit (Murattal)' },
+  { id:'ar.husary',            ar:'محمود خليل الحصري',        en:'Husary' },
+  { id:'ar.minshawi',          ar:'محمد صديق المنشاوي',       en:'Minshawi' },
+  { id:'ar.muhammadayyoub',    ar:'محمد أيوب',                en:'Muhammad Ayyoub' },
+  { id:'ar.hudhaify',          ar:'علي الحذيفي',              en:'Ali Al-Hudhaify' },
+  { id:'ar.shaatree',          ar:'أبو بكر الشاطري',          en:'Abu Bakr Ash-Shaatree' },
+  { id:'said', ar:'السيد سعيد', en:'Sayed Saeed', full:'https://audio.jukehost.co.uk', urls:{'001':"https://audio.jukehost.co.uk/01a01751-136b-739e-bd20-62e8599e7f0c",'002-001':"https://audio.jukehost.co.uk/01a01751-fd45-720b-a52f-1bc0051ab01f",'002-002':"https://audio.jukehost.co.uk/01a01752-37a1-7369-bed0-d138b4db0b64",'003-001':"https://audio.jukehost.co.uk/01a01763-373e-72c7-bdbc-5fbe2c4b5f0e",'003-002':"https://audio.jukehost.co.uk/01a01771-567c-71c0-a67c-639dc72ede2d",'004-001':"https://audio.jukehost.co.uk/01a01764-d898-72f6-86fb-1a69e4c2a7c0",'005-001':"https://audio.jukehost.co.uk/01a01764-eb9c-71e0-a045-b3e921123d62",'006-002':"https://audio.jukehost.co.uk/01a01764-ff2c-73e1-9f54-c333fbabd72e",'012':"https://audio.jukehost.co.uk/01a01771-5f31-7301-a8bc-8fde0cf0ef1c",'013-001':"https://audio.jukehost.co.uk/01a01765-265f-707d-9103-a5117d1a41b0",'014-001':"https://audio.jukehost.co.uk/01a01771-707d-7373-b0d3-d1e0b00d3b14",'016-001':"https://audio.jukehost.co.uk/01a01771-7f7f-7349-b2ba-ff3e05d3acdb",'017-001':"https://audio.jukehost.co.uk/01a01765-a3e0-7240-ad65-8ecc8b713e66",'018-001':"https://audio.jukehost.co.uk/01a01765-9a49-7242-a6ed-fe3330f1033b",'019-001':"https://audio.jukehost.co.uk/01a01771-89ae-739f-9e48-5b994a1e1724",'020-001':"https://audio.jukehost.co.uk/01a01771-a9da-7167-afa2-ec762b1a91ef",'021-001':"https://audio.jukehost.co.uk/01a01771-cd27-7140-b89a-47257019dcae",'023-001':"https://audio.jukehost.co.uk/01a01771-c103-73a9-8253-23e6aaee2e82",'025-001':"https://audio.jukehost.co.uk/01a01771-c7d3-7018-9f3f-e8c7a10ae007",'028-001':"https://audio.jukehost.co.uk/01a01771-9755-7095-9c78-398310ada63a",'030-001':"https://audio.jukehost.co.uk/01a01771-f34e-70d7-9c17-87d6ff469883",'030-002':"https://audio.jukehost.co.uk/01a01781-afa2-7151-ac35-d116ba0de059",'031':"https://audio.jukehost.co.uk/01a01772-10fd-7345-8419-9cf3e8713b34",'032':"https://audio.jukehost.co.uk/01a01772-0913-73c0-8b80-ccb62addae68",'033-001':"https://audio.jukehost.co.uk/01a01771-a652-719c-82d1-11178b406280",'035':"https://audio.jukehost.co.uk/01a01772-2484-73c6-b291-50836cb9e297",'036-001':"https://audio.jukehost.co.uk/01a01772-3b5e-72db-9a79-bdfc812bcb9d",'049':"https://audio.jukehost.co.uk/01a01772-586c-72fa-8d54-40add442aaca",'050':"https://audio.jukehost.co.uk/01a01776-11cc-71a5-a7a2-9dc429fd564f",'050-001':"https://audio.jukehost.co.uk/01a01757-15e5-7082-a9f5-8023acc9b289",'054':"https://audio.jukehost.co.uk/01a01776-2e30-717a-bf43-79388b9131aa",'055-001':"https://audio.jukehost.co.uk/01a01776-2eb8-724f-8f08-56c12085fd4c",'059':"https://audio.jukehost.co.uk/01a01776-43a9-72ba-a183-bae2ac44d2ba",'066':"https://audio.jukehost.co.uk/01a01776-5501-7046-8281-989858f5e1bb",'069':"https://audio.jukehost.co.uk/01a01776-5eae-73e1-b85a-dccc101301a7",'073':"https://audio.jukehost.co.uk/01a01776-6d8e-7397-b94f-0fcad16f2c4c",'075':"https://audio.jukehost.co.uk/01a01776-823e-72ea-a78c-5b49ebb2452c",'078-001':"https://audio.jukehost.co.uk/01a01776-7ffb-73fa-8d11-16de881fcb39",'079':"https://audio.jukehost.co.uk/01a01776-979a-7104-ac5c-bf72a5d31120",'082':"https://audio.jukehost.co.uk/01a01776-9bce-7225-9fef-5c1a98621f92",'085':"https://audio.jukehost.co.uk/01a01776-a771-71b4-824c-6b358d0ad88f",'086':"https://audio.jukehost.co.uk/01a01776-b42b-7303-9fd5-d13e9db40fff",'087':"https://audio.jukehost.co.uk/01a01776-c284-71cc-ba5e-3fcb62d6a48e",'088':"https://audio.jukehost.co.uk/01a01776-ccac-70b7-a62e-c29539417322",'089':"https://audio.jukehost.co.uk/01a01776-d70e-72b2-b3af-93e85577430a",'090':"https://audio.jukehost.co.uk/01a01781-cac2-7010-951d-b4e5e081ec5b",'091':"https://audio.jukehost.co.uk/01a01776-ed7b-73ce-a350-eabeae2fde6b",'093':"https://audio.jukehost.co.uk/01a01776-f886-707d-b31d-c69e71a86975",'096':"https://audio.jukehost.co.uk/01a01781-d7cb-73e8-8cbf-ffd6deb5e424",'097':"https://audio.jukehost.co.uk/01a01777-123f-7093-bac9-1f738e981d14",'099':"https://audio.jukehost.co.uk/01a01777-1de9-71bf-8840-381e1c759d1b",'106':"https://audio.jukehost.co.uk/01a01777-2b80-732f-aae2-3655a19c7529",'108':"https://audio.jukehost.co.uk/01a01781-e1c0-71d6-86b1-a54e93229d6a",}, limited:[1,2,3,4,5,6,12,13,14,16,17,18,19,20,21,23,25,28,30,31,32,33,35,36,49,50,54,55,59,66,69,73,75,78,79,82,85,86,87,88,89,90,91,93,96,97,99,106,108], partial:[2,3,4,5,6,13,14,16,17,18,19,20,21,23,25,28,30,33,36,55,78] },
+  { id:'mosad', ar:'عبد الرحمن مسعد', en:'Abdel Rahman Mosad', full:'https://audio.jukehost.co.uk', urls:{'002-001':"https://audio.jukehost.co.uk/01a01713-7137-71f2-85ca-422f5210d08d",'002-002':"https://audio.jukehost.co.uk/01a01713-8028-734a-a92d-e36ce83f43fa",'002-003':"https://audio.jukehost.co.uk/01a01713-97e8-7008-ae38-fee44f60bd8e",'003-001':"https://audio.jukehost.co.uk/01a01713-aa70-720b-8be5-c20fcf4e2868",'003-002':"https://audio.jukehost.co.uk/01a01713-ba0b-722a-853b-01300973985f",'003-003':"https://audio.jukehost.co.uk/01a01713-cf5b-73b0-a773-424cc65f4ece",'005-001':"https://audio.jukehost.co.uk/01a01713-db83-7361-afed-c569dbaccf47",'007-001':"https://audio.jukehost.co.uk/01a01713-e90e-7351-8562-e2bfcbd37c0e",'010':"https://audio.jukehost.co.uk/01a01714-10ae-73e9-9b99-d641391f0c36",'010-001':"https://audio.jukehost.co.uk/01a01713-fb01-70d4-92eb-878b00e2c0fc",'011':"https://audio.jukehost.co.uk/01a01738-5556-7010-a5d2-3715b2d764fe",'013-001':"https://audio.jukehost.co.uk/01a01715-7af1-731f-aa91-f4597f1fda19",'013-002':"https://audio.jukehost.co.uk/01a01716-dac8-721f-a4c4-1a8173d0dbce",'013-003':"https://audio.jukehost.co.uk/01a01718-3ad4-70de-bdcc-29a0537cf05a",'014-001':"https://audio.jukehost.co.uk/01a01719-9b8c-73b0-a5bc-f0b1e62a54f5",'015':"https://audio.jukehost.co.uk/01a01719-b4ac-71b1-8f38-6595c318704b",'016-001':"https://audio.jukehost.co.uk/01a01719-cb3a-7158-a7f8-1ee76c67c334",'016-002':"https://audio.jukehost.co.uk/01a01719-d1cc-7086-ae10-c0b05df769d5",'017':"https://audio.jukehost.co.uk/01a0173c-9c28-7376-8a9a-318d855a8b98",'019-001':"https://audio.jukehost.co.uk/01a0171c-9738-712e-9848-15096e0bcffa",'019-002':"https://audio.jukehost.co.uk/01a0171c-a411-72aa-ba8e-8a8b7bdf1bae",'019-003':"https://audio.jukehost.co.uk/01a0171c-ab69-70c3-aa76-528cd5d09116",'021-001':"https://audio.jukehost.co.uk/01a0171e-19bb-72cc-8852-f2a56ebed847",'023-001':"https://audio.jukehost.co.uk/01a0171e-3157-72d7-9999-948de87aca89",'024-001':"https://audio.jukehost.co.uk/01a0171e-3b77-7323-8966-b13a3e956648",'025':"https://audio.jukehost.co.uk/01a0171f-beef-72dd-a6dd-40ce66429b84",'025-001':"https://audio.jukehost.co.uk/01a0171f-9e63-732f-b06f-1ddacc04e00c",'025-002':"https://audio.jukehost.co.uk/01a0171f-af4d-71fd-8de0-a0a6f756c23c",'027-001':"https://audio.jukehost.co.uk/01a0171f-cf4c-72df-bfbe-e60f535935c8",'029-001':"https://audio.jukehost.co.uk/01a0171f-ddf0-7316-985f-3991f761ab8c",'029-002':"https://audio.jukehost.co.uk/01a0171f-ea38-7126-a51a-90c687532e65",'030-001':"https://audio.jukehost.co.uk/01a01721-4ab3-726d-8054-e1cda21d50e6",'032':"https://audio.jukehost.co.uk/01a01722-af35-7349-9be4-c0d02109b68a",'049':"https://audio.jukehost.co.uk/01a01722-c583-726d-9c33-051b37e5561f",'067':"https://audio.jukehost.co.uk/01a01722-d766-7242-bafd-0a5bc00bb2d5",'073':"https://audio.jukehost.co.uk/01a01722-e503-7247-abbe-21818a8d264e",'078':"https://audio.jukehost.co.uk/01a01722-ec84-73a4-afc9-bd5230a62643",'087':"https://audio.jukehost.co.uk/01a01722-f2fe-7071-9e7c-abfb0bccd037",'088':"https://audio.jukehost.co.uk/01a01722-fb86-735a-97f7-3b732b74667f",'100':"https://audio.jukehost.co.uk/01a01723-02cf-73ab-8eef-568549c908a0",'107':"https://audio.jukehost.co.uk/01a01723-0a69-71f1-8a21-1808aa800535",'112':"https://audio.jukehost.co.uk/01a01724-6b02-71f5-885c-9832d3471776",'113':"https://audio.jukehost.co.uk/01a01725-cb18-70f8-b747-c3993221065f",'114':"https://audio.jukehost.co.uk/01a01727-2b19-7334-802d-4961977d1a78",}, limited:[2,3,5,7,10,11,13,14,15,16,17,19,21,23,24,25,27,29,30,32,49,67,73,78,87,88,100,107,112,113,114], partial:[2,3,5,7,13,14,16,19,21,23,24,27,29,30] },
+];
+let selectedReciter = RECITERS[0];
+
+function buildReciterList() {
+  document.getElementById('reciterList').innerHTML = RECITERS.map((r, i) => `
+    <div class="reciter-item${r.id === selectedReciter.id ? ' selected' : ''}" onclick="selectReciter(${i})">
+      <div>
+        <div class="reciter-name">${r.ar}</div>
+        <div class="reciter-en">${r.full ? (r.limited ? 'تلاوات محدودة — jukehost.co.uk' : 'قراءة كاملة — mp3quran.net') : r.en}</div>
+      </div>
+      <svg class="reciter-check" width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="#00ff99" stroke-width="2"/>
+        <path d="M7 12L10 15L17 8" stroke="#00ff99" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  `).join('');
+}
+
+function selectReciter(idx) {
+  stopAudio();
+  selectedReciter = RECITERS[idx];
+  document.getElementById('reciterBtnLabel').textContent = selectedReciter.ar.split(' ')[0];
+  buildReciterList();
+  hideReciterModal();
+  if (selectedReciter.full) {
+    showToast(`✓ ${selectedReciter.ar.split(' ')[0]} — قراءة كاملة`);
+  } else {
+    showToast(`✓ ${selectedReciter.ar.split(' ')[0]}`);
+  }
+}
+
+function showReciterModal() { buildReciterList(); document.getElementById('reciterModal').classList.add('show'); }
+function hideReciterModal() { document.getElementById('reciterModal').classList.remove('show'); }
+
+// ─── SURAHS DATA ──────────────────────────────
+const SURAHS = [null,
+  {n:"الفاتحة",p:1,v:7,t:"Meccan"},{n:"البقرة",p:2,v:286,t:"Medinan"},
+  {n:"آل عمران",p:50,v:200,t:"Medinan"},{n:"النساء",p:77,v:176,t:"Medinan"},
+  {n:"المائدة",p:106,v:120,t:"Medinan"},{n:"الأنعام",p:128,v:165,t:"Meccan"},
+  {n:"الأعراف",p:151,v:206,t:"Meccan"},{n:"الأنفال",p:177,v:75,t:"Medinan"},
+  {n:"التوبة",p:187,v:129,t:"Medinan"},{n:"يونس",p:208,v:109,t:"Meccan"},
+  {n:"هود",p:221,v:123,t:"Meccan"},{n:"يوسف",p:235,v:111,t:"Meccan"},
+  {n:"الرعد",p:249,v:43,t:"Medinan"},{n:"إبراهيم",p:255,v:52,t:"Meccan"},
+  {n:"الحجر",p:262,v:99,t:"Meccan"},{n:"النحل",p:267,v:128,t:"Meccan"},
+  {n:"الإسراء",p:282,v:111,t:"Meccan"},{n:"الكهف",p:293,v:110,t:"Meccan"},
+  {n:"مريم",p:305,v:98,t:"Meccan"},{n:"طه",p:312,v:135,t:"Meccan"},
+  {n:"الأنبياء",p:322,v:112,t:"Meccan"},{n:"الحج",p:332,v:78,t:"Medinan"},
+  {n:"المؤمنون",p:342,v:118,t:"Meccan"},{n:"النور",p:350,v:64,t:"Medinan"},
+  {n:"الفرقان",p:359,v:77,t:"Meccan"},{n:"الشعراء",p:367,v:227,t:"Meccan"},
+  {n:"النمل",p:377,v:93,t:"Meccan"},{n:"القصص",p:385,v:88,t:"Meccan"},
+  {n:"العنكبوت",p:396,v:69,t:"Meccan"},{n:"الروم",p:404,v:60,t:"Meccan"},
+  {n:"لقمان",p:411,v:34,t:"Meccan"},{n:"السجدة",p:415,v:30,t:"Meccan"},
+  {n:"الأحزاب",p:418,v:73,t:"Medinan"},{n:"سبأ",p:428,v:54,t:"Meccan"},
+  {n:"فاطر",p:434,v:45,t:"Meccan"},{n:"يس",p:440,v:83,t:"Meccan"},
+  {n:"الصافات",p:446,v:182,t:"Meccan"},{n:"ص",p:453,v:88,t:"Meccan"},
+  {n:"الزمر",p:458,v:75,t:"Meccan"},{n:"غافر",p:467,v:85,t:"Meccan"},
+  {n:"فصلت",p:477,v:54,t:"Meccan"},{n:"الشورى",p:483,v:53,t:"Meccan"},
+  {n:"الزخرف",p:489,v:89,t:"Meccan"},{n:"الدخان",p:496,v:59,t:"Meccan"},
+  {n:"الجاثية",p:499,v:37,t:"Meccan"},{n:"الأحقاف",p:502,v:35,t:"Meccan"},
+  {n:"محمد",p:507,v:38,t:"Medinan"},{n:"الفتح",p:511,v:29,t:"Medinan"},
+  {n:"الحجرات",p:515,v:18,t:"Medinan"},{n:"ق",p:518,v:45,t:"Meccan"},
+  {n:"الذاريات",p:520,v:60,t:"Meccan"},{n:"الطور",p:523,v:49,t:"Meccan"},
+  {n:"النجم",p:526,v:62,t:"Meccan"},{n:"القمر",p:528,v:55,t:"Meccan"},
+  {n:"الرحمن",p:531,v:78,t:"Meccan"},{n:"الواقعة",p:534,v:96,t:"Meccan"},
+  {n:"الحديد",p:537,v:29,t:"Medinan"},{n:"المجادلة",p:542,v:22,t:"Medinan"},
+  {n:"الحشر",p:545,v:24,t:"Medinan"},{n:"الممتحنة",p:549,v:13,t:"Medinan"},
+  {n:"الصف",p:551,v:14,t:"Medinan"},{n:"الجمعة",p:553,v:11,t:"Medinan"},
+  {n:"المنافقون",p:554,v:11,t:"Medinan"},{n:"التغابن",p:556,v:18,t:"Medinan"},
+  {n:"الطلاق",p:558,v:12,t:"Medinan"},{n:"التحريم",p:560,v:12,t:"Medinan"},
+  {n:"الملك",p:562,v:30,t:"Meccan"},{n:"القلم",p:564,v:52,t:"Meccan"},
+  {n:"الحاقة",p:566,v:52,t:"Meccan"},{n:"المعارج",p:568,v:44,t:"Meccan"},
+  {n:"نوح",p:570,v:28,t:"Meccan"},{n:"الجن",p:572,v:28,t:"Meccan"},
+  {n:"المزمل",p:574,v:20,t:"Meccan"},{n:"المدثر",p:575,v:56,t:"Meccan"},
+  {n:"القيامة",p:577,v:40,t:"Meccan"},{n:"الإنسان",p:578,v:31,t:"Medinan"},
+  {n:"المرسلات",p:580,v:50,t:"Meccan"},{n:"النبأ",p:582,v:40,t:"Meccan"},
+  {n:"النازعات",p:583,v:46,t:"Meccan"},{n:"عبس",p:585,v:42,t:"Meccan"},
+  {n:"التكوير",p:586,v:29,t:"Meccan"},{n:"الانفطار",p:587,v:19,t:"Meccan"},
+  {n:"المطففين",p:587,v:36,t:"Meccan"},{n:"الانشقاق",p:589,v:25,t:"Meccan"},
+  {n:"البروج",p:590,v:22,t:"Meccan"},{n:"الطارق",p:591,v:17,t:"Meccan"},
+  {n:"الأعلى",p:591,v:19,t:"Meccan"},{n:"الغاشية",p:592,v:26,t:"Meccan"},
+  {n:"الفجر",p:593,v:30,t:"Meccan"},{n:"البلد",p:594,v:20,t:"Meccan"},
+  {n:"الشمس",p:595,v:15,t:"Meccan"},{n:"الليل",p:595,v:21,t:"Meccan"},
+  {n:"الضحى",p:596,v:11,t:"Meccan"},{n:"الشرح",p:596,v:8,t:"Meccan"},
+  {n:"التين",p:597,v:8,t:"Meccan"},{n:"العلق",p:597,v:19,t:"Meccan"},
+  {n:"القدر",p:598,v:5,t:"Meccan"},{n:"البينة",p:598,v:8,t:"Medinan"},
+  {n:"الزلزلة",p:599,v:8,t:"Medinan"},{n:"العاديات",p:599,v:11,t:"Meccan"},
+  {n:"القارعة",p:600,v:11,t:"Meccan"},{n:"التكاثر",p:601,v:8,t:"Meccan"},
+  {n:"العصر",p:601,v:3,t:"Meccan"},{n:"الهمزة",p:601,v:9,t:"Meccan"},
+  {n:"الفيل",p:601,v:5,t:"Meccan"},{n:"قريش",p:602,v:4,t:"Meccan"},
+  {n:"الماعون",p:602,v:7,t:"Meccan"},{n:"الكوثر",p:602,v:3,t:"Meccan"},
+  {n:"الكافرون",p:603,v:6,t:"Meccan"},{n:"النصر",p:603,v:3,t:"Medinan"},
+  {n:"المسد",p:603,v:5,t:"Meccan"},{n:"الإخلاص",p:604,v:4,t:"Meccan"},
+  {n:"الفلق",p:604,v:5,t:"Meccan"},{n:"الناس",p:604,v:6,t:"Meccan"},
+];
+
+// ─── STATE ────────────────────────────────────
+let currentPage = 1;
+let currentTab  = 'quran';
+let fontIdx     = 1;
+const fontSizes = ['fs-sm','fs-md','fs-lg'];
+let pageCache   = {};
+let pageAyahs   = [];
+let overviewData = null;
+let audio       = null;
+let audioIdx    = 0;
+let isPlaying   = false;
+let audioSession = 0;   // ← session ID to prevent ghost callbacks
+
+// ─── HELPERS ──────────────────────────────────
+function toEA(n) { return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]); }
+function showLoader() { document.getElementById('loader').classList.add('show'); }
+function hideLoader() { document.getElementById('loader').classList.remove('show'); }
+function updateNav() {
+  document.getElementById('btnPrev').disabled = currentPage <= 1;
+  document.getElementById('btnNext').disabled = currentPage >= 604;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── API ──────────────────────────────────────
+const API = 'https://api.alquran.cloud/v1';
+
+async function fetchPageData(pageNum, edition) {
+  const key = `${pageNum}-${edition}`;
+  if (pageCache[key]) return pageCache[key];
+  const r = await fetch(`${API}/page/${pageNum}/${edition}`);
+  const j = await r.json();
+  if (j.code !== 200) throw new Error(j.status);
+  pageCache[key] = j.data;
+  return j.data;
+}
+
+// ─── LOAD PAGE ────────────────────────────────
+async function loadPage(num) {
+  currentPage = Math.max(1, Math.min(604, num));
+  stopAudio();
+  showLoader();
+  try {
+    const edition = currentTab === 'quran' ? 'quran-uthmani' : 'ar.muyassar';
+    const data = await fetchPageData(currentPage, edition);
+    pageAyahs  = data.ayahs;
+    overviewData = data;
+    renderPage(data);
+  } catch(e) {
+    document.getElementById('verseContainer').innerHTML =
+      `<div class="msg-box">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="margin:0 auto 12px;display:block;opacity:.3">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="16" r="1" fill="currentColor"/>
+        </svg>
+        حدث خطأ أثناء تحميل البيانات.<br>تأكد من اتصالك بالإنترنت وحاول مجدداً.
+      </div>`;
+  }
+  hideLoader();
+  updateNav();
+  document.querySelector('.page-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // إذا كان هناك طلب تلاوة معلق (اختيار سورة من القائمة)، ننفذه فور اكتمال التحميل
+  if (recitePending != null) {
+    const pn = recitePending;
+    recitePending = null;
+    // نبدأ داخل معالج تفاعل حقيقي عبر dispatchEvent نقرة على زر الاستماع لضمان قبول المتصفح
+    requestAnimationFrame(() => {
+      if (pageAyahs.length && pageAyahs.some(a => a.surah.number === pn) && isFullReciter()) {
+        document.getElementById('audioBtn').click();
+      } else {
+        recitePending = pn;
+      }
+    });
+  }
+}
+
+// ─── RENDER ───────────────────────────────────
+function renderPage(data) {
+  const ayahs = data.ayahs;
+  if (!ayahs.length) return;
+
+  const first = ayahs[0];
+  document.getElementById('pageNumLabel').textContent  = `صفحة ${toEA(currentPage)}`;
+  document.getElementById('pageSurahLabel').textContent =
+    first.surah.name.replace(/سُورَةُ\s*/, 'سورة ');
+
+  const container = document.getElementById('verseContainer');
+  let html = '';
+  let prevSurah = null;
+  let versBuf   = '';
+
+  function flushBuf() {
+    if (versBuf) {
+      html += `<div class="verse-section"><div class="verse-paragraph">${versBuf}</div></div>`;
+      versBuf = '';
+    }
+  }
+
+  ayahs.forEach(ay => {
+    const sn = ay.surah.number;
+    if (sn !== prevSurah) {
+      flushBuf();
+      if (prevSurah !== null) html += '<hr class="surah-separator"/>';
+      prevSurah = sn;
+      if (ay.numberInSurah === 1) {
+        const isMeccan = ay.surah.revelationType === 'Meccan';
+        html += `<div class="surah-box">
+          <span class="surah-box-name">${ay.surah.name}</span>
+          <div class="surah-box-info">
+            <span class="surah-box-num">السورة ${toEA(sn)}</span>
+            <span class="surah-box-loc">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              ${isMeccan ? 'مكية' : 'مدنية'}
+            </span>
+          </div>
+        </div>`;
+        if (sn !== 9) html += `<div class="basmala">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>`;
+      }
+    }
+
+    if (currentTab === 'quran') {
+      versBuf += `${ay.text}<span class="ayah-num" data-num="${ay.number}">${toEA(ay.numberInSurah)}</span> `;
+    } else {
+      html += `<div class="verse-section tafsir-text">
+        <div class="tafsir-ayah">
+          <div class="tafsir-num">الآية ${toEA(ay.numberInSurah)}</div>
+          <div>${ay.text}</div>
+        </div>
+      </div>`;
+    }
+  });
+
+  if (currentTab === 'quran') flushBuf();
+  container.innerHTML = html;
+}
+
+// ─── NAV / TABS / FONT ────────────────────────
+function changePage(d) { loadPage(currentPage + d); }
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabQuran').classList.toggle('active',  tab === 'quran');
+  document.getElementById('tabTafsir').classList.toggle('active', tab === 'tafsir');
+  loadPage(currentPage);
+}
+
+function cycleFont() {
+  const app = document.getElementById('mainApp');
+  app.classList.remove(fontSizes[fontIdx]);
+  fontIdx = (fontIdx + 1) % fontSizes.length;
+  app.classList.add(fontSizes[fontIdx]);
+  const labels = ['صغير', 'متوسط', 'كبير'];
+  showToast(`✓ حجم الخط: ${labels[fontIdx]}`);
+}
+
+// ─── SEARCH ───────────────────────────────────
+// تتبع السورة التي يبحث عنها المستخدم حاليًا (يُحدّث عند البحث أو اختيار سورة)
+let currentSurahNum = 1;
+window.currentSurahNum = 1;
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const num = parseInt(q.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+  if (!isNaN(num) && num >= 1 && num <= 604) { loadPage(num); return; }
+  const clean = q.replace(/^سورة\s*/, '').trim();
+  for (let i = 1; i < SURAHS.length; i++) {
+    if (SURAHS[i].n.includes(clean) || clean.includes(SURAHS[i].n)) {
+      currentSurahNum = i;
+      loadPage(SURAHS[i].p);
+      return;
+    }
+  }
+  if (!isNaN(num) && num >= 1 && num <= 114) {
+    currentSurahNum = num;
+    loadPage(SURAHS[num].p);
+    return;
+  }
+  showToast('لم يُعثر على نتيجة');
+}
+
+function goSurah(name) {
+  for (let i = 1; i < SURAHS.length; i++) {
+    if (SURAHS[i].n === name) {
+      currentSurahNum = i;
+      loadPage(SURAHS[i].p);
+      return;
+    }
+  }
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+// ─── SURAH LIST MODAL ──────
+function buildSurahGrid() {
+  const grid = document.getElementById('surahGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 1; i < SURAHS.length; i++) {
+    const s = SURAHS[i];
+    const div = document.createElement('div');
+    div.className = 'surah-item';
+    div.dataset.name = s.n;
+    div.dataset.num = String(i);
+    div.onclick = () => { closeSurahList(); goSurah(s.n); startRecitationIfFullReciter(i); };
+    const isPartial = isPartialSurah(i);
+    div.innerHTML = `<span class="surah-item-num">${toEA(i)}</span>
+      <span class="surah-item-name">سورة ${s.n}</span>
+      <span class="surah-item-meta">${s.t === 'Meccan' ? 'مكية' : 'مدنية'} · ${toEA(s.v)} آية${isPartial ? ' · <b style="color:var(--gold)">ما تيسر</b>' : ''}</span>`;
+    grid.appendChild(div);
+  }
+}
+function openSurahList() {
+  const modal = document.getElementById('surahModal');
+  modal.style.display = 'flex';
+  const input = document.getElementById('surahSearchInput');
+  input.value = '';
+  buildSurahGrid();
+  setTimeout(() => input.focus(), 120);
+}
+function closeSurahList() {
+  document.getElementById('surahModal').style.display = 'none';
+}
+// بدء التلاوة تلقائيًا عند اختيار سورة إذا كان القارئ المختار يقرأ السورة كاملة (نعينع / السيد سعيد)
+let recitePending = null;
+function startRecitationIfFullReciter(surahNum) {
+  if (!isFullReciter()) return;
+  if (!isSurahAvailable(surahNum)) {
+    const names = selectedReciter.limited.map(n => (SURAHS[n] && SURAHS[n].n) ? SURAHS[n].n : n).join('، ');
+    showToast(`✗ سورة ${SURAHS[surahNum].n} غير متوفرة بصوت الشيخ ${selectedReciter.ar} — السور المتاحة: ${names}`);
+    return;
+  }
+  // الصفحة ما تزال تُحمَّل (من اختيار السورة) — نؤجل بدء التلاوة حتى اكتمال التحميل
+  // لكن يجب التنفيذ داخل سلسلة تفاعل المستخدم، لذا نستخدم setTimeout قصير يعتمد على
+  // أن المتصفح يوافق على التشغيل لأن النقرة الأصلية كانت قبل لحظات على نفس التبويب
+  if (!pageAyahs.length || !pageAyahs.some(a => a.surah.number === surahNum)) {
+    recitePending = surahNum;
+    return;
+  }
+  // نبدأ التشغيل فورًا داخل سلسلة تفاعل المستخدم (النقر على السورة)
+  // لأن المتصفح يرفض التشغيل التلقائي بعد أي setTimeout/await
+  const firstIdx = pageAyahs.findIndex(a => a.surah.number === surahNum);
+  audioIdx = firstIdx >= 0 ? firstIdx : 0;
+  const sn = String(surahNum).padStart(3,'0'); const url = selectedReciter.urls ? (selectedReciter.urls[sn+'-001'] || selectedReciter.urls[sn]) : `${selectedReciter.full}/${sn}${isPartialSurah(surahNum) ? '-001' : ''}.mp3`;
+  if (isPlaying) stopAudio();
+  if (audio) { audio.onended = null; audio.onerror = null; audio.pause(); audio = null; }
+  audio = new Audio(url);
+  const session = ++audioSession;
+  audio.onended = () => {
+    if (session !== audioSession) return;
+    // إذا بقيت آيات لسورة أخرى في نفس الصفحة، ننتقل لها
+    if (audioIdx + 1 < pageAyahs.length && pageAyahs[audioIdx + 1].surah.number !== surahNum) {
+      audioIdx++;
+      playNext();
+      return;
+    }
+    stopAudio();
+    showToast(`✓ اكتملت التلاوة`);
+  };
+  audio.onerror = () => {
+    if (session !== audioSession) return;
+    if (audioIdx + 1 < pageAyahs.length && pageAyahs[audioIdx + 1].surah.number !== surahNum) {
+      audioIdx++;
+      playNext();
+      return;
+    }
+    stopAudio();
+    showToast(`✗ تعذر تحميل التلاوة`);
+  };
+  isPlaying = true;
+  audio.play().then(() => {
+    showToast(`✓ بدأت التلاوة بصوت الشيخ ${selectedReciter.ar}`);
+    highlightAyah(firstAyahOfSurah(surahNum));
+    updateAudioBtn();
+  }).catch(() => { stopAudio(); showToast(`✗ تعذر تشغيل التلاوة`); });
+}
+function filterSurahList() {
+  const q = document.getElementById('surahSearchInput').value.trim();
+  document.querySelectorAll('.surah-item').forEach(el => {
+    if (!q) { el.classList.remove('hidden'); return; }
+    const num = parseInt(q.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+    const byName = el.dataset.name.includes(q) || q.includes(el.dataset.name);
+    const byNum = !isNaN(num) && String(num) === el.dataset.num;
+    el.classList.toggle('hidden', !(byName || byNum));
+  });
+}
+document.getElementById('surahModal').addEventListener('click', e => { if (e.target === document.getElementById('surahModal')) closeSurahList(); });
+
+// ─── AUDIO  (bug-fixed with session IDs) ──────
+function getAudioUrl(ayahNum) {
+  // قارئ بنمط سورة كاملة (مثل أحمد نعينع من mp3quran أو السيد سعيد)
+  if (selectedReciter.full && pageAyahs.length) {
+    // نستخدم سورة الآية المطلوبة نفسها (وليس أول سورة في الصفحة)
+    // لأن السورة قد تبدأ في منتصف الصفحة (مثل يس في صفحة 440)
+    const ay = pageAyahs.find(a => a.number === ayahNum);
+    const sn = ay ? ay.surah.number : pageAyahs[0].surah.number;
+    // السور الجزئية (ما تيسر) تُخزَّن بصيغة NNN-001.mp3، NNN-002.mp3 ... إلخ
+    if (selectedReciter.urls) {
+      const s = String(sn).padStart(3,'0');
+      return selectedReciter.urls[s+'-001'] || selectedReciter.urls[s] || `${selectedReciter.full}/${s}.mp3`;
+    }
+    if (selectedReciter.partial && selectedReciter.partial.includes(sn)) {
+      return `${selectedReciter.full}/${String(sn).padStart(3,'0')}-001.mp3`;
+    }
+    return `${selectedReciter.full}/${String(sn).padStart(3,'0')}.mp3`;
+  }
+  return `https://cdn.islamic.network/quran/audio/128/${selectedReciter.id}/${ayahNum}.mp3`;
+}
+
+// هل القارئ الحالي بصيغة سورة كاملة؟
+function isFullReciter() {
+  return Boolean(selectedReciter.full);
+}
+
+// هل السورة الحالية متوفرة لصوت القارئ؟ (للقراء ذوي التلاوات المحدودة مثل السيد سعيد)
+// ملاحظة: الصفحة قد تبدأ بسورة أخرى وتنتهي بالسورة المطلوبة (مثل صفحة 235 تبدأ بهود وتنتهي بيوسف)
+// لذلك نتحقق من السورة المطلوبة فعليًا وليس أول سورة في الصفحة
+let surahAvailabilityTarget = null;
+function isSurahAvailable(targetNum) {
+  if (!isFullReciter()) return true;
+  const limited = selectedReciter.limited;
+  if (!limited) return true;
+  const num = (targetNum != null) ? targetNum : pageAyahs[0].surah.number;
+  return limited.includes(num);
+}
+
+// هل السورة من تلاوة "ما تيسر" (جزئية)؟
+function isPartialSurah(targetNum) {
+  return Boolean(selectedReciter.partial && selectedReciter.partial.includes(targetNum));
+}
+
+// الحصول على رقم أول آية في صفحة مختلفة (لسورة كاملة)
+function firstAyahOfSurah(surahNum) {
+  const ay = pageAyahs.find(a => a.surah.number === surahNum);
+  return ay ? ay.number : 1;
+}
+
+function highlightAyah(ayahNum) {
+  // Remove previous highlight
+  document.querySelectorAll('.ayah-num.playing-ayah').forEach(el => el.classList.remove('playing-ayah'));
+  if (ayahNum == null) return;
+  const el = document.querySelector(`.ayah-num[data-num="${ayahNum}"]`);
+  if (el) {
+    el.classList.add('playing-ayah');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function playNext() {
+  if (!isPlaying || audioIdx >= pageAyahs.length) { stopAudio(); return; }
+
+  // Capture session so stale closures self-invalidate
+  const session = ++audioSession;
+  const ay = pageAyahs[audioIdx];
+
+  // قارئ كامل السورة: ملف واحد لكل صفحة (ننتقل صفحة جديدة = ملف جديد)
+    if (isFullReciter()) {
+    const surahNum = ay.surah.number;
+    const url = getAudioUrl(ay.number);
+    // نظّف الصوت السابق
+    if (audio) { audio.onended = null; audio.onerror = null; audio.pause(); audio = null; }
+    audio = new Audio(url);
+    audio.onended = () => {
+      if (session !== audioSession) return;
+      // إذا بقيت آيات لسورة أخرى في نفس الصفحة (مثل انتقال من فاطر إلى يس)، ننتقل لها
+      if (audioIdx + 1 < pageAyahs.length && pageAyahs[audioIdx + 1].surah.number !== surahNum) {
+        audioIdx++;
+        playNext();
+        return;
+      }
+      stopAudio();
+      showToast(`✓ اكتملت التلاوة`);
+    };
+    audio.onerror = () => {
+      if (session !== audioSession) return;
+      if (audioIdx + 1 < pageAyahs.length && pageAyahs[audioIdx + 1].surah.number !== surahNum) {
+        audioIdx++;
+        playNext();
+        return;
+      }
+      stopAudio();
+      showToast(`✗ تعذر تحميل التلاوة`);
+    };
+    audio.play().catch(() => {
+      if (session !== audioSession) return;
+      stopAudio();
+      showToast(`✗ تعذر تشغيل التلاوة`);
+    });
+    highlightAyah(firstAyahOfSurah(surahNum));
+    updateAudioBtn();
+    return;
+  }
+
+  // قارئ آية بآية (الافتراضي)
+  // Clean up previous audio
+  if (audio) { audio.onended = null; audio.onerror = null; audio.pause(); audio = null; }
+
+  audio = new Audio(getAudioUrl(ay.number));
+  audio.onended = () => {
+    if (session !== audioSession) return;
+    audioIdx++;
+    playNext();
+  };
+  audio.onerror = () => {
+    if (session !== audioSession) return;
+    audioIdx++;
+    playNext();
+  };
+  audio.play().catch(() => {
+    if (session !== audioSession) return;
+    audioIdx++;
+    playNext();
+  });
+
+  highlightAyah(ay.number);
+  updateAudioBtn();
+}
+
+function toggleAudio() {
+  if (isPlaying) { stopAudio(); return; }
+  if (!pageAyahs.length) return;
+  // نستخدم السورة التي يبحث عنها المستخدم (من مربع البحث أو اختيار سورة من القائمة) وليس أول سورة في الصفحة
+  let surahNum = currentSurahNum;
+  // fallback: إذا كانت الصفحة تعرض سورة واحدة فقط، نستخدمها مباشرة
+  if (isFullReciter() && pageAyahs.length) {
+    const unique = [...new Set(pageAyahs.map(a => a.surah.number))];
+    if (unique.length === 1) surahNum = unique[0];
+  }
+  if (isFullReciter() && !isSurahAvailable(surahNum)) {
+    const names = selectedReciter.limited.map(n => (SURAHS[n] && SURAHS[n].n) ? SURAHS[n].n : n).join('، ');
+    showToast(`✗ سورة ${SURAHS[surahNum].n} غير متوفرة بصوت هذا القارئ — السور المتاحة: ${names}`);
+    return;
+  }
+  if (isFullReciter()) {
+    // قارئ كامل السورة: نتحقق أولًا من توفر السورة ضمن قائمة القارئ (للقراء ذوي التلاوات المحدودة)
+    if (!isSurahAvailable(surahNum)) {
+      const names = selectedReciter.limited.map(n => (SURAHS[n] && SURAHS[n].n) ? SURAHS[n].n : n).join('، ');
+      showToast(`✗ سورة ${SURAHS[surahNum].n} غير متوفرة بصوت هذا القارئ — السور المتاحة: ${names}`);
+      return;
+    }
+    const sn2 = String(surahNum).padStart(3,'0');
+    const headUrl = selectedReciter.urls ? (selectedReciter.urls[sn2+'-001'] || selectedReciter.urls[sn2]) : `${selectedReciter.full}/${sn2}${isPartialSurah(surahNum) ? '-001' : ''}.mp3`;
+    fetch(headUrl, { method: 'HEAD' })
+      .then(r => {
+        if (!r.ok) {
+          // إذا فشل التحقق لكن السورة ضمن قائمة القارئ المتاحة، نشغّل الصوت مباشرة (بعض السيرفرات تحظر HEAD)
+          if (selectedReciter.limited && selectedReciter.limited.includes(surahNum)) {
+            isPlaying = true;
+            const idx = pageAyahs.findIndex(a => a.surah.number === surahNum);
+            audioIdx = idx >= 0 ? idx : 0;
+            playNext();
+          } else {
+            showToast(`✗ التلاوة غير متوفرة حاليًا`);
+          }
+          return;
+        }
+        isPlaying = true;
+        const idx = pageAyahs.findIndex(a => a.surah.number === surahNum);
+        audioIdx = idx >= 0 ? idx : 0;
+        playNext();
+      })
+      .catch(() => {
+        // فشل الشبكة (CORS أو انقطاع): تشغيل مباشرة إذا كانت السورة متوفرة للقارئ
+        if (selectedReciter.limited && selectedReciter.limited.includes(surahNum)) {
+          isPlaying = true;
+          const idx = pageAyahs.findIndex(a => a.surah.number === surahNum);
+          audioIdx = idx >= 0 ? idx : 0;
+          playNext();
+        } else {
+          showToast(`✗ تعذر التحقق من التلاوة`);
+        }
+      });
+    return;
+  }
+  isPlaying = true;
+  const idx = pageAyahs.findIndex(a => a.surah.number === surahNum);
+  audioIdx  = idx >= 0 ? idx : 0;
+  playNext();
+}
+
+function stopAudio() {
+  isPlaying = false;
+  audioSession++;  // invalidate ALL pending callbacks immediately
+  if (audio) { audio.onended = null; audio.onerror = null; audio.pause(); audio = null; }
+  highlightAyah(null);
+  const btn = document.getElementById('audioBtn');
+  btn.classList.remove('playing');
+  document.getElementById('audioBtnLabel').textContent = 'استماع';
+  document.getElementById('audioBtnIcon').innerHTML = `
+    <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2"/>
+    <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+  `;
+}
+
+function updateAudioBtn() {
+  const btn = document.getElementById('audioBtn');
+  btn.classList.add('playing');
+  const ay = pageAyahs[audioIdx];
+  if (isFullReciter()) {
+    document.getElementById('audioBtnLabel').textContent = 'إيقاف · كامل السورة';
+  } else {
+    document.getElementById('audioBtnLabel').textContent = ay ? `إيقاف · ${toEA(ay.numberInSurah)}` : 'إيقاف';
+  }
+  document.getElementById('audioBtnIcon').innerHTML = `
+    <div class="audio-waves">
+      ${[0,.15,.3,.15,0].map((d,i)=>`<div class="wave-bar" style="--wd:${d}s"></div>`).join('')}
+    </div>
+    <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+    <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+  `;
+}
+
+// ─── OVERVIEW ─────────────────────────────────
+function showOverview() {
+  if (!overviewData) return;
+  const ayahs  = overviewData.ayahs;
+  const surahs = [...new Set(ayahs.map(a => a.surah.number))];
+  const juz    = [...new Set(ayahs.map(a => a.juz))];
+  const surahNames = surahs.map(sn => {
+    const ay = ayahs.find(a => a.surah.number === sn);
+    return ay ? ay.surah.name : '';
+  }).join(' — ');
+
+  document.getElementById('overviewInfo').innerHTML = `
+    <div class="ov-row"><span class="ov-label">رقم الصفحة</span><span class="ov-val">${toEA(currentPage)}</span></div>
+    <div class="ov-row"><span class="ov-label">السور</span><span class="ov-val">${surahNames}</span></div>
+    <div class="ov-row"><span class="ov-label">الجزء</span><span class="ov-val">${juz.map(toEA).join('، ')}</span></div>
+    <div class="ov-row"><span class="ov-label">عدد الآيات</span><span class="ov-val">${toEA(ayahs.length)}</span></div>
+    <div class="ov-row"><span class="ov-label">القارئ</span><span class="ov-val">${selectedReciter.ar}</span></div>
+  `;
+  document.getElementById('overview').classList.add('show');
+}
+function hideOverview() { document.getElementById('overview').classList.remove('show'); }
+
+// ─── BOOT ─────────────────────────────────────
+loadPage(1);
+</script>
+</body>
+</html>
